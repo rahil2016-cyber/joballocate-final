@@ -1,0 +1,23 @@
+# Flutter
+build/
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+ios/Pods/
+ios/.symlinks/
+android/.gradle/
+android/app/build/
+
+# Node
+node_modules/
+
+# Misc
+*.log
+*.tmp
+.DS_Store
+.history/
+.vscode/
+.idea/
+*.swp
+*.lock

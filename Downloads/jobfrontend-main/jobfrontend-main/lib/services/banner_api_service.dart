@@ -1,0 +1,52 @@
+import 'package:http/http.dart' as http;
+import '../config/api_config.dart';
+import '../models/banner.dart';
+import '../utils/api_json_decode.dart';
+import 'app_session.dart';
+
+/// Banner service for managing promotional banners shown on the platform.
+/// Banners can be managed by admin and displayed to job seekers and employers.
+class BannerApiService {
+  BannerApiService._();
+  static final BannerApiService instance = BannerApiService._();
+
+  String get _base => ApiConfig.baseUrl;
+
+  Map<String, String> get _publicHeaders => {
+        'Accept': 'application/json',
+      };
+
+  Map<String, dynamic> _decode(http.Response r) => decodeApiJsonObject(r);
+
+  void _ensureSuccess(Map<String, dynamic> json, int status) {
+    if (status >= 200 && status < 300 && json['success'] == true) return;
+    throw Exception(json['message']?.toString() ?? 'Request failed ($status)');
+  }
+
+  Map<String, String> get _authHeaders {
+    final t = AppSession.token;
+    if (t == null || t.isEmpty) return _publicHeaders;
+    return {
+      ..._publicHeaders,
+      'Authorization': 'Bearer $t',
+    };
+  }
+
+  /// `GET /banners` — get all active banners.
+  /// Sends auth token if available to support role-specific or personalized banners.
+  Future<List<PromoBanner>> getActiveBanners() async {
+    final uri = Uri.parse('$_base/banners');
+    final r = await http.get(uri, headers: _authHeaders);
+    final json = _decode(r);
+    _ensureSuccess(json, r.statusCode);
+
+    final data = json['data'];
+    if (data is! List) {
+      return [];
+    }
+
+    return data
+        .map((e) => PromoBanner.fromJson(Map<String, dynamic>.from(e as Map)))
+        .toList();
+  }
+}
