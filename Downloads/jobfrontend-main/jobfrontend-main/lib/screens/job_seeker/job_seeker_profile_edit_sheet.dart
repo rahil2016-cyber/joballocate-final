@@ -8,6 +8,7 @@ import '../../utils/app_colors.dart';
 import '../../services/location_service.dart';
 import '../../utils/media_url.dart';
 import '../../widgets/industry_type_dropdown.dart';
+import '../../constants/industry_types.dart';
 
 class _EduRow {
   _EduRow({
