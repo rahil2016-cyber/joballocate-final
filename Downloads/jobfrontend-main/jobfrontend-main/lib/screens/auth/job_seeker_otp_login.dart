@@ -103,14 +103,20 @@ class _JobSeekerOtpLoginScreenState extends State<JobSeekerOtpLoginScreen> {
                       child: _buildToggleItem(
                         title: 'Phone',
                         isSelected: _isPhone,
-                        onTap: () => setState(() => _isPhone = true),
+                        onTap: () {
+                          FocusScope.of(context).unfocus();
+                          setState(() => _isPhone = true);
+                        },
                       ),
                     ),
                     Expanded(
                       child: _buildToggleItem(
                         title: 'Email',
                         isSelected: !_isPhone,
-                        onTap: () => setState(() => _isPhone = false),
+                        onTap: () {
+                          FocusScope.of(context).unfocus();
+                          setState(() => _isPhone = false);
+                        },
                       ),
                     ),
                   ],
@@ -129,6 +135,7 @@ class _JobSeekerOtpLoginScreenState extends State<JobSeekerOtpLoginScreen> {
               ),
               const SizedBox(height: 12),
               TextField(
+                key: ValueKey(_isPhone ? 'phone' : 'email'),
                 controller: _contactController,
                 keyboardType: _isPhone ? TextInputType.phone : TextInputType.emailAddress,
                 decoration: InputDecoration(

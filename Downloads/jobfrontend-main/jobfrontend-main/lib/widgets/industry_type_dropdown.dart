@@ -60,7 +60,7 @@ class _IndustryTypeDropdownState extends State<IndustryTypeDropdown> {
 
   @override
   Widget build(BuildContext context) {
-    final allowed = _options.map((e) => e.key).toSet();
+    final allowed = _options.map((e) => e.key).toSet()..add('none_of_above');
     final safeValue = widget.value != null && allowed.contains(widget.value) ? widget.value : null;
 
     return DropdownButtonFormField<String?>(
@@ -91,6 +91,13 @@ class _IndustryTypeDropdownState extends State<IndustryTypeDropdown> {
           (e) => DropdownMenuItem<String?>(
             value: e.key,
             child: Text(e.label, overflow: TextOverflow.ellipsis),
+          ),
+        ),
+        const DropdownMenuItem<String?>(
+          value: 'none_of_above',
+          child: Text(
+            'None of the above (Write custom)',
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
       ],

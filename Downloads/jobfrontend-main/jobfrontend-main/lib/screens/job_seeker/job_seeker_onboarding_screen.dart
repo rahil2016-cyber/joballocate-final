@@ -9,6 +9,7 @@ import '../../widgets/custom_button.dart';
 import '../../models/job.dart';
 import 'job_seeker_home.dart';
 import '../../constants/industry_types.dart';
+import '../../constants/industry_roles_skills.dart';
 
 class JobSeekerOnboardingScreen extends StatefulWidget {
   const JobSeekerOnboardingScreen({super.key});
@@ -36,154 +37,20 @@ class _JobSeekerOnboardingScreenState extends State<JobSeekerOnboardingScreen> {
   // Suggested skills mapped to roles (ranked by frequency)
   List<String> _suggestedSkillsRanked = [];
 
-  static const Map<String, Map<String, List<String>>> _allRolesAndSkillsByIndustry = {
-    'software_engineering_it': {
-      'Software Developer': ['Java', 'Python', 'JavaScript', 'React', 'Node.js', 'SQL', 'Git', 'HTML', 'CSS'],
-      'Frontend Developer': ['HTML', 'CSS', 'JavaScript', 'TypeScript', 'React', 'Vue', 'Angular', 'TailwindCSS', 'Figma'],
-      'Backend Developer': ['Node.js', 'Express', 'Python', 'Django', 'Go', 'PHP', 'Laravel', 'PostgreSQL', 'Redis', 'Docker'],
-      'Full Stack Developer': ['MongoDB', 'Express', 'React', 'Node.js', 'Git', 'AWS', 'JavaScript', 'SQL', 'Docker'],
-      'UI/UX Designer': ['Figma', 'Adobe XD', 'Photoshop', 'Wireframing', 'Prototyping', 'User Research', 'Sketch'],
-      'QA Tester': ['Selenium', 'Jest', 'Postman', 'Cypress', 'JIRA', 'Manual Testing', 'Automation Testing'],
-      'DevOps Engineer': ['Docker', 'Kubernetes', 'CI/CD', 'AWS', 'Linux', 'Terraform', 'Ansible', 'Git'],
-      'Mobile App Developer': ['Flutter', 'Dart', 'React Native', 'iOS Development', 'Swift', 'Android Development', 'Kotlin'],
-      'System Administrator': ['Linux', 'Windows Server', 'Active Directory', 'Networking', 'Shell Scripting', 'Virtualization'],
-      'IT Support Specialist': ['Troubleshooting', 'Customer Service', 'Hardware Support', 'Operating Systems', 'Help Desk'],
-    },
-    'data_science_analytics': {
-      'Data Analyst': ['Python', 'SQL', 'Excel', 'Tableau', 'Power BI', 'Data Visualization', 'Statistics'],
-      'Data Scientist': ['Python', 'R', 'Machine Learning', 'SQL', 'Statistics', 'Pandas', 'NumPy', 'Jupyter'],
-      'Machine Learning Engineer': ['Python', 'TensorFlow', 'PyTorch', 'Scikit-Learn', 'Deep Learning', 'Computer Vision', 'NLP'],
-      'Data Engineer': ['SQL', 'Python', 'ETL Pipelines', 'Spark', 'Hadoop', 'Airflow', 'AWS', 'Databricks'],
-      'BI Analyst': ['Power BI', 'Tableau', 'SQL', 'Data Warehousing', 'Business Intelligence', 'Dashboards'],
-    },
-    'design_ux_creative': {
-      'Graphic Designer': ['Photoshop', 'Illustrator', 'InDesign', 'Branding', 'Typography', 'Logo Design', 'Vector Art'],
-      'Video Editor': ['Premiere Pro', 'After Effects', 'Final Cut Pro', 'Video Production', 'Color Grading', 'Sound Design'],
-      'Art Director': ['Creative Strategy', 'Concept Development', 'Team Leadership', 'Brand Identity', 'Adobe Creative Suite'],
-      'Animator': ['3D Animation', '2D Animation', 'Blender', 'Maya', 'After Effects', 'Storyboarding', 'Character Design'],
-      'Motion Designer': ['After Effects', 'Cinema 4D', 'Motion Graphics', 'Video Editing', 'Keyframing', 'Illustrator'],
-    },
-    'product_management': {
-      'Product Manager': ['Product Roadmap', 'Agile/Scrum', 'JIRA', 'User Stories', 'Product Analytics', 'Market Research', 'SQL'],
-      'Associate Product Manager': ['Agile', 'JIRA', 'User Research', 'Wireframing', 'Data Analysis', 'Product Backlog'],
-      'Product Owner': ['Scrum Master', 'Product Backlog', 'Sprint Planning', 'Agile Methodologies', 'User Stories'],
-      'Technical Product Manager': ['System Architecture', 'APIs', 'Product Strategy', 'Software Development Life Cycle (SDLC)', 'SQL'],
-    },
-    'sales_business_development': {
-      'Sales Executive': ['Lead Generation', 'Communication', 'Negotiation', 'CRM (Salesforce/HubSpot)', 'Cold Calling', 'Sales Pitching'],
-      'Business Development Executive': ['B2B Sales', 'Market Expansion', 'Client Acquisition', 'Relationship Management', 'Proposal Writing'],
-      'Sales Manager': ['Sales Strategy', 'Team Leadership', 'Revenue Growth', 'Key Account Management', 'Forecasting'],
-      'Key Account Manager': ['Client Relationship', 'Retention', 'Up-selling', 'Account Management', 'Negotiation'],
-      'Inside Sales Representative': ['Lead Qualification', 'Telesales', 'CRM', 'Email Outreach', 'Product Demos'],
-    },
-    'marketing_digital_growth': {
-      'Digital Marketing Specialist': ['SEO', 'SEM', 'Google Ads', 'Social Media Marketing', 'Email Marketing', 'Google Analytics'],
-      'SEO Specialist': ['Search Engine Optimization', 'Google Search Console', 'Ahrefs', 'Keyword Research', 'Link Building', 'On-page SEO'],
-      'Content Writer': ['Copywriting', 'SEO Writing', 'Blog Writing', 'Editing', 'Content Strategy', 'Creative Writing'],
-      'Social Media Manager': ['Content Creation', 'Instagram/Facebook Ads', 'Buffer/Hootsuite', 'Community Management', 'Analytics'],
-      'Growth Hacker': ['A/B Testing', 'Funnel Optimization', 'Conversion Rate Optimization (CRO)', 'Viral Marketing', 'Data Analytics'],
-      'Brand Manager': ['Brand Strategy', 'Market Positioning', 'Advertising', 'Public Relations', 'Consumer Insights'],
-    },
-    'banking_finance': {
-      'Financial Analyst': ['Financial Modeling', 'Valuation', 'Excel', 'Corporate Finance', 'Investment Analysis', 'Data Analysis'],
-      'Investment Banker': ['M&A', 'Financial Analysis', 'Pitch Books', 'Due Diligence', 'Capital Markets', 'Valuation'],
-      'Credit Analyst': ['Risk Assessment', 'Financial Statements', 'Credit Underwriting', 'Lending Analysis', 'Debt Structure'],
-      'Loan Officer': ['Mortgage Lending', 'Customer Relations', 'Credit Analysis', 'Loan Documentation', 'Sales'],
-      'Wealth Manager': ['Portfolio Management', 'Financial Planning', 'Asset Allocation', 'Relationship Management', 'Tax Planning'],
-    },
-    'accountants': {
-      'Accountant': ['Tally Prime', 'GST Filing', 'Excel', 'Bookkeeping', 'Accounts Payable/Receivable', 'Bank Reconciliation'],
-      'Chartered Accountant (CA)': ['Auditing', 'Taxation (Direct/Indirect)', 'Statutory Compliance', 'Financial Audits', 'Corporate Law'],
-      'Tax Consultant': ['Income Tax Filing', 'GST Compliance', 'Tax Planning', 'Tax Law', 'Auditing'],
-      'Bookkeeper': ['QuickBooks', 'Data Entry', 'Bank Reconciliation', 'Ledger Maintenance', 'Invoicing'],
-      'Audit Associate': ['Internal Audit', 'External Audit', 'Compliance Checking', 'Vouching', 'Working Papers'],
-    },
-    'human_resources': {
-      'HR Recruiter': ['Sourcing', 'Interviewing', 'Job Portals (Naukri/LinkedIn)', 'Applicant Tracking Systems (ATS)', 'Candidate Screening'],
-      'HR Generalist': ['Employee Engagement', 'HR Policy Implementation', 'Performance Management', 'Onboarding', 'Grievance Handling'],
-      'HR Manager': ['HR Strategy', 'Organizational Development', 'Talent Management', 'Labor Law', 'Budgeting'],
-      'Talent Acquisition Specialist': ['Employer Branding', 'Executive Search', 'Headhunting', 'Recruiting Metrics', 'Negotiation'],
-      'HR Operations Coordinator': ['Payroll Administration', 'Attendance Tracking', 'HRMS Tools', 'Documentation', 'Employee Database'],
-    },
-    'operations_logistics': {
-      'Operations Coordinator': ['Process Optimization', 'Daily Operations', 'Coordination', 'Reporting', 'Problem Solving'],
-      'Operations Manager': ['Strategic Planning', 'Resource Allocation', 'Budget Management', 'Process Improvement', 'KPI Tracking'],
-      'Supply Chain Planner': ['Inventory Management', 'Demand Forecasting', 'Procurement', 'ERP Systems (SAP)', 'Material Requirements Planning (MRP)'],
-      'Logistics Coordinator': ['Dispatching', 'Freight Management', 'Route Optimization', 'Tracking', 'Customs Clearance'],
-      'Warehouse Supervisor': ['Inventory Counting', 'Safety Standards', 'Team Management', 'Stock Auditing', 'Shipping & Receiving'],
-    },
-    'healthcare_medical': {
-      'Medical Practitioner / Doctor': ['Patient Diagnosis', 'Treatment Planning', 'Emergency Care', 'Medical Knowledge', 'Prescription Writing'],
-      'Registered Nurse': ['Patient Monitoring', 'Medication Administration', 'Wound Care', 'ECG Monitoring', 'Compassion'],
-      'Pharmacist': ['Dispensing Medicines', 'Inventory Control', 'Pharmacology Knowledge', 'Drug Interactions', 'Patient Counselling'],
-      'Lab Technician': ['Blood Sample Processing', 'Microscopy', 'Laboratory Safety', 'Equipment Calibration', 'Pathology'],
-      'Physiotherapist': ['Rehabilitation', 'Exercise Therapy', 'Manual Therapy', 'Pain Management', 'Patient Assessment'],
-    },
-    'education_training': {
-      'Teacher / Lecturer': ['Classroom Management', 'Lesson Planning', 'Subject Matter Expertise', 'Student Evaluation', 'Presentation Skills'],
-      'Online Tutor': ['E-learning Platforms (Zoom/Meet)', 'Interactive Teaching', 'Digital Whiteboards', 'Student Engagement'],
-      'Instructional Designer': ['Curriculum Development', 'E-learning Authoring Tools (Articulate)', 'LMS Administration', 'Pedagogical Design'],
-      'School Counselor': ['Student Counseling', 'Career Guidance', 'Behavioral Therapy', 'Parent Communication', 'Mental Health Support'],
-      'Training Specialist': ['Corporate Training', 'Needs Analysis', 'Presentation Skills', 'Module Creation', 'Feedback Assessment'],
-    },
-    'legal_compliance': {
-      'Legal Advisor': ['Legal Drafting', 'Corporate Governance', 'Legal Research', 'Contract Review', 'Arbitration & Litigation'],
-      'Compliance Officer': ['Regulatory Compliance', 'Risk Assessment', 'Audit & Inspection', 'Policy Enforcement', 'Code of Conduct'],
-      'Corporate Counsel': ['Mergers & Acquisitions', 'Commercial Contracts', 'Intellectual Property', 'Board Advising', 'Corporate Law'],
-      'Paralegal': ['Case File Organization', 'Legal Research', 'Drafting Affidavits', 'Court Filing', 'Client Communication'],
-      'Contract Specialist': ['Contract Drafting', 'Negotiation', 'Service Level Agreements (SLAs)', 'Contract Lifecycle Management', 'Risk Management'],
-    },
-    'customer_success_support': {
-      'Customer Support Executive': ['Communication Skills', 'Ticket Management', 'Zendesk/Freshdesk', 'Customer Satisfaction (CSAT)', 'Active Listening'],
-      'Customer Success Manager': ['Client Retention', 'Account Growth', 'Product Adoption', 'Onboarding', 'Customer Feedback Loop'],
-      'Technical Support Specialist': ['Troubleshooting', 'API Testing', 'Network Diagnostics', 'Hardware/Software Installation', 'Bug Escalation'],
-      'Helpdesk Representative': ['Call Handling', 'Data Entry', 'First Contact Resolution', 'Service Desk Tools (JIRA Service Management)'],
-    },
-    'manufacturing_engineering': {
-      'Mechanical Engineer': ['AutoCAD', 'SolidWorks', 'CAD/CAM', 'Thermodynamics', 'Machine Design', 'FEA Analysis'],
-      'Electrical Engineer': ['MATLAB', 'Circuit Design', 'PLC Programming', 'Power Systems', 'Electrical Safety Standards'],
-      'Civil Engineer': ['STAAD Pro', 'Site Supervision', 'Estimation & Costing', 'Structural Analysis', 'Project Management'],
-      'Production Engineer': ['Lean Manufacturing', 'Six Sigma', 'Assembly Line Management', 'Process Engineering', 'Safety Compliance'],
-      'Quality Control Inspector': ['Quality Assurance Tools', 'Root Cause Analysis', 'Statistical Process Control (SPC)', 'ISO Standards Audit'],
-    },
-    'bpo_telecaller': {
-      'Telecaller': ['Cold Calling', 'Lead Generation', 'Customer Engagement', 'Communication', 'Active Listening', 'Sales pitch'],
-      'Customer Service Representative': ['Inbound Support', 'Conflict Resolution', 'Data Entry', 'CRM Handling', 'Escalation Procedures'],
-      'Inbound Agent': ['Call Handling', 'Inquiry Resolution', 'Order Processing', 'Soft Skills', 'Product Knowledge'],
-      'Outbound Agent': ['Sales Outcalls', 'Lead Qualifying', 'Appointment Scheduling', 'Handling Rejections', 'Telemarketing'],
-      'Telemarketing Executive': ['Tele-sales', 'Target Orientation', 'Lead Tracking', 'Product Demos', 'Communication'],
-    },
-    'other_general': {
-      'Administrative Assistant': ['Data Entry', 'Calendar Management', 'Office Administration', 'Email Correspondence', 'MS Office (Word/Excel)'],
-      'Office Administrator': ['Vendor Coordination', 'Facility Management', 'Billing & Invoicing', 'Documentation', 'Supervision'],
-      'Data Entry Operator': ['Typing Speed (WPM)', 'Data Accuracy', 'Excel Spreadsheet', 'Scanning & Archiving', 'Data Verification'],
-      'Receptionist': ['Front Desk Operations', 'Visitor Management', 'Call Routing', 'Multitasking', 'Professional Etiquette'],
-      'General Executive': ['Ad-hoc Tasks', 'Basic Report Preparation', 'Documentation', 'Time Management', 'Coordination'],
-    },
-    'bpo': {
-      'BPO Executive': ['Customer Interaction', 'Data Entry', 'Voice & Non-voice Operations', 'Communication Skills', 'CRM Software'],
-    },
-    'telecaller': {
-      'Telecaller Executive': ['Cold Calling', 'Lead Conversions', 'Customer Follow-up', 'Product Pitching', 'Communication'],
-    },
-    'banking': {
-      'Bank Clerk': ['Cash Handling', 'Customer Service', 'Data Entry', 'Account Management', 'Basic Math'],
-      'Branch Manager': ['Branch Operations', 'Team Leadership', 'Business Development', 'Compliance', 'Audit Oversight'],
-    },
-    'finance': {
-      'Financial Advisor': ['Investment Planning', 'Risk Assessment', 'Mutual Funds', 'Client Relationship', 'Financial Planning'],
-      'Treasury Analyst': ['Cash Management', 'Foreign Exchange', 'Liquidity Planning', 'Risk Mitigation', 'Financial Modeling'],
-    }
-  };
+  // Map removed to use kAllRolesAndSkillsByIndustry from constants
 
   // Form Controllers / States
   // Step 2: Basic Info
   final TextEditingController _nameController = TextEditingController();
 
-  // Step 3: Job Interests
-  final List<String> _selectedRoles = [];
+  // Step 3: Industry Selection
+  final TextEditingController _customIndustryController = TextEditingController();
 
-  // Step 4: Skills
+  // Step 4: Job Interests
+  final List<String> _selectedRoles = [];
+  final TextEditingController _customRoleController = TextEditingController();
+
+  // Step 5: Skills
   final List<String> _selectedSkills = [];
   final TextEditingController _customSkillController = TextEditingController();
 
@@ -247,6 +114,8 @@ class _JobSeekerOnboardingScreenState extends State<JobSeekerOnboardingScreen> {
   @override
   void dispose() {
     _nameController.dispose();
+    _customIndustryController.dispose();
+    _customRoleController.dispose();
     _degreeController.dispose();
     _collegeController.dispose();
     _gradYearController.dispose();
@@ -324,6 +193,22 @@ class _JobSeekerOnboardingScreenState extends State<JobSeekerOnboardingScreen> {
       case 'bpo':
       case 'telecaller':
         return Icons.phone_in_talk_rounded;
+      case 'retail_e_commerce':
+        return Icons.storefront_rounded;
+      case 'hospitality_food':
+        return Icons.restaurant_rounded;
+      case 'delivery_driving':
+        return Icons.delivery_dining_rounded;
+      case 'construction_real_estate':
+        return Icons.home_work_rounded;
+      case 'media_entertainment':
+        return Icons.movie_rounded;
+      case 'automotive':
+        return Icons.directions_car_rounded;
+      case 'beauty_wellness':
+        return Icons.spa_rounded;
+      case 'security_housekeeping':
+        return Icons.security_rounded;
       default:
         return Icons.work_outline_rounded;
     }
@@ -368,7 +253,14 @@ class _JobSeekerOnboardingScreenState extends State<JobSeekerOnboardingScreen> {
         }
 
         if (profile['industry_type'] != null) {
-          _selectedIndustry = profile['industry_type'].toString();
+          final val = profile['industry_type'].toString();
+          final exists = kIndustryTypes.any((e) => e.key == val) || _industries.any((e) => e.key == val);
+          if (exists) {
+            _selectedIndustry = val;
+          } else if (val.isNotEmpty) {
+            _selectedIndustry = 'none_of_above';
+            _customIndustryController.text = val;
+          }
         }
 
         if (profile['job_roles'] is List) {
@@ -492,7 +384,7 @@ class _JobSeekerOnboardingScreenState extends State<JobSeekerOnboardingScreen> {
   // Fallback data if no active jobs exist in database yet
   void _applyFallbackRolesAndSkills() {
     _rolesByIndustry = {};
-    _allRolesAndSkillsByIndustry.forEach((industryKey, rolesMap) {
+    kAllRolesAndSkillsByIndustry.forEach((industryKey, rolesMap) {
       _rolesByIndustry[industryKey] = rolesMap.keys.toList();
     });
     _updateRankedSkills();
@@ -500,7 +392,7 @@ class _JobSeekerOnboardingScreenState extends State<JobSeekerOnboardingScreen> {
 
   // Merge static fallback roles with the fetched roles
   void _mergeFallbackRoles() {
-    _allRolesAndSkillsByIndustry.forEach((industryKey, rolesMap) {
+    kAllRolesAndSkillsByIndustry.forEach((industryKey, rolesMap) {
       final currentRoles = _rolesByIndustry[industryKey] ?? [];
       final Set<String> uniqueRoles = Set.from(currentRoles);
       for (final staticRole in rolesMap.keys) {
@@ -531,7 +423,7 @@ class _JobSeekerOnboardingScreenState extends State<JobSeekerOnboardingScreen> {
     }
 
     // Merge static skills from our map for all selected roles
-    _allRolesAndSkillsByIndustry.forEach((industryKey, rolesMap) {
+    kAllRolesAndSkillsByIndustry.forEach((industryKey, rolesMap) {
       for (final role in _selectedRoles) {
         if (rolesMap.containsKey(role)) {
           final staticSkills = rolesMap[role] ?? [];
@@ -603,7 +495,16 @@ class _JobSeekerOnboardingScreenState extends State<JobSeekerOnboardingScreen> {
               setState(() => _isLoading = false);
               return;
             }
-            body['industry_type'] = _selectedIndustry;
+            if (_selectedIndustry == 'none_of_above') {
+              if (_customIndustryController.text.trim().isEmpty) {
+                _showSnackBar('Please write your custom industry name');
+                setState(() => _isLoading = false);
+                return;
+              }
+              body['industry_type'] = _customIndustryController.text.trim();
+            } else {
+              body['industry_type'] = _selectedIndustry;
+            }
             break;
           case 4:
             if (_selectedRoles.isEmpty) {
@@ -1078,6 +979,12 @@ class _JobSeekerOnboardingScreenState extends State<JobSeekerOnboardingScreen> {
 
   // STEP 3: Select Industry (Required)
   Widget _buildStep3(TextTheme textTheme) {
+    final list = _industries.isEmpty ? kIndustryTypes : _industries;
+    final displayIndustries = [
+      ...list,
+      const IndustryTypeOption('none_of_above', 'None of the above (Write custom)'),
+    ];
+
     return Column(
       key: const ValueKey(3),
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1101,9 +1008,9 @@ class _JobSeekerOnboardingScreenState extends State<JobSeekerOnboardingScreen> {
             mainAxisSpacing: 12,
             childAspectRatio: 1.25,
           ),
-          itemCount: _industries.isEmpty ? kIndustryTypes.length : _industries.length,
+          itemCount: displayIndustries.length,
           itemBuilder: (context, index) {
-            final industry = _industries.isEmpty ? kIndustryTypes[index] : _industries[index];
+            final industry = displayIndustries[index];
             final isSelected = _selectedIndustry == industry.key;
             final icon = _getIndustryIcon(industry.key);
 
@@ -1164,6 +1071,22 @@ class _JobSeekerOnboardingScreenState extends State<JobSeekerOnboardingScreen> {
             );
           },
         ),
+        if (_selectedIndustry == 'none_of_above') ...[
+          const SizedBox(height: 24),
+          const Text(
+            'Write Custom Industry Name *',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimary),
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _customIndustryController,
+            decoration: const InputDecoration(
+              hintText: 'e.g. Space Exploration, Robotics',
+              border: OutlineInputBorder(),
+            ),
+            onChanged: (_) => setState(() {}),
+          ),
+        ],
       ],
     );
   }
@@ -1207,17 +1130,7 @@ class _JobSeekerOnboardingScreenState extends State<JobSeekerOnboardingScreen> {
           style: textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
         ),
         const SizedBox(height: 24),
-        if (roles.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 40.0),
-            child: Center(
-              child: Text(
-                'No roles found for this industry. You can proceed to add custom skills next.',
-                style: TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.w500),
-              ),
-            ),
-          )
-        else
+        if (roles.isNotEmpty) ...[
           Wrap(
             spacing: 10,
             runSpacing: 10,
@@ -1268,6 +1181,57 @@ class _JobSeekerOnboardingScreenState extends State<JobSeekerOnboardingScreen> {
               );
             }).toList(),
           ),
+          const SizedBox(height: 24),
+        ],
+        const Text(
+          'Add Custom Job Roles',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimary),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _customRoleController,
+                decoration: const InputDecoration(
+                  labelText: 'Job Role Name',
+                  hintText: 'e.g. Lead Technical Architect, Flutter Lead',
+                  border: OutlineInputBorder(),
+                ),
+                onSubmitted: (_) => _addCustomRole(),
+              ),
+            ),
+            const SizedBox(width: 12),
+            IconButton.filled(
+              icon: const Icon(Icons.add_rounded, color: Colors.white),
+              style: IconButton.styleFrom(backgroundColor: AppColors.primary),
+              onPressed: _addCustomRole,
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+        if (_selectedRoles.isNotEmpty) ...[
+          const Text(
+            'Your Selected Roles',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimary),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _selectedRoles.map((role) {
+              return InputChip(
+                label: Text(role),
+                onDeleted: () {
+                  setState(() {
+                    _selectedRoles.remove(role);
+                  });
+                },
+                deleteIconColor: AppColors.error,
+              );
+            }).toList(),
+          ),
+        ],
       ],
     );
   }
@@ -2052,6 +2016,16 @@ class _JobSeekerOnboardingScreenState extends State<JobSeekerOnboardingScreen> {
         ),
       ],
     );
+  }
+
+  void _addCustomRole() {
+    final role = _customRoleController.text.trim();
+    if (role.isNotEmpty && !_selectedRoles.contains(role)) {
+      setState(() {
+        _selectedRoles.add(role);
+        _customRoleController.clear();
+      });
+    }
   }
 
   void _addCustomSkill() {

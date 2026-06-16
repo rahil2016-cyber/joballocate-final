@@ -18,9 +18,9 @@ class AppColors {
   static const Color error = Color(0xFFEF4444);
 
   // Text Palette
-  static const Color textPrimary = Color(0xFF000000);
-  static const Color textSecondary = Color(0xFF000000);
-  static const Color textHint = Color(0xFF1A1A1A);
+  static const Color textPrimary = Color(0xFF0F172A); // Slate 900
+  static const Color textSecondary = Color(0xFF475569); // Slate 600
+  static const Color textHint = Color(0xFF94A3B8); // Slate 400
 
   // Success/Warning Palette
   static const Color success = Color(0xFF10B981);

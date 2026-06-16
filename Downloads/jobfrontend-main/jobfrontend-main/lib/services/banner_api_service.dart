@@ -14,6 +14,7 @@ class BannerApiService {
 
   Map<String, String> get _publicHeaders => {
         'Accept': 'application/json',
+        'Cache-Control': 'no-cache',
       };
 
   Map<String, dynamic> _decode(http.Response r) => decodeApiJsonObject(r);

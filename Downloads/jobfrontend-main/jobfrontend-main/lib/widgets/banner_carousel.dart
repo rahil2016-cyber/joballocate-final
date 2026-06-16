@@ -53,38 +53,49 @@ class _BannerCarouselState extends State<BannerCarousel> {
       return const SizedBox.shrink();
     }
 
+    final currentBanner = widget.banners[_currentIndex];
+    final currentHasImage = currentBanner.imageUrl != null && currentBanner.imageUrl!.trim().isNotEmpty;
+    final hasSubtitle = currentBanner.subtitle != null && currentBanner.subtitle!.trim().isNotEmpty;
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          height: 190,
-          child: PageView.builder(
-            controller: _pageController,
-            onPageChanged: (index) {
-              setState(() => _currentIndex = index);
-            },
-            itemCount: widget.banners.length,
-            itemBuilder: (context, index) {
-              final banner = widget.banners[index];
-              return _BannerCard(
-                banner: banner,
-                onTap: () {
-                  final link = banner.buttonLink?.trim();
-                  if (link != null && link.isNotEmpty) {
-                    _launchUrl(link);
-                  }
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: SizedBox(
+            height: 135, // Proportional height to match standard banner aspect ratio
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: PageView.builder(
+                controller: _pageController,
+                onPageChanged: (index) {
+                  setState(() => _currentIndex = index);
                 },
-              );
-            },
+                itemCount: widget.banners.length,
+                itemBuilder: (context, index) {
+                  final banner = widget.banners[index];
+                  return _BannerCard(
+                    banner: banner,
+                    onTap: () {
+                      final link = banner.buttonLink?.trim();
+                      if (link != null && link.isNotEmpty) {
+                        _launchUrl(link);
+                      }
+                    },
+                  );
+                },
+              ),
+            ),
           ),
         ),
-        if (widget.banners.isNotEmpty) ...[
+        // Only show subtitle below if it is a custom subtitle OR if the banner has no image (text-only fallback)
+        if (hasSubtitle || !currentHasImage) ...[
           const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              (widget.banners[_currentIndex].subtitle != null &&
-                      widget.banners[_currentIndex].subtitle!.trim().isNotEmpty)
-                  ? widget.banners[_currentIndex].subtitle!
+              hasSubtitle
+                  ? currentBanner.subtitle!
                   : 'Your success, our mission. Discover exclusive career coaching and placement services.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
@@ -95,7 +106,7 @@ class _BannerCarouselState extends State<BannerCarousel> {
           ),
         ],
         if (widget.banners.length > 1) ...[
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
@@ -109,8 +120,8 @@ class _BannerCarouselState extends State<BannerCarousel> {
                   );
                 },
                 child: Container(
-                  width: 8,
-                  height: 8,
+                  width: 7,
+                  height: 7,
                   margin: const EdgeInsets.symmetric(horizontal: 4),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
@@ -187,12 +198,12 @@ class _BannerCard extends StatelessWidget {
                     ),
                   ),
                 ),
-              if (!isSuperSale)
+              if (!isSuperSale && !hasImage)
                 Builder(
                   builder: (context) {
                     final cleanTitle = banner.title.trim().toLowerCase();
                     final isPlaceholderTitle = cleanTitle == 'jobs' || cleanTitle == 'banner' || cleanTitle.isEmpty;
-                    final showOverlay = !hasImage || !isPlaceholderTitle;
+                    final showOverlay = !isPlaceholderTitle;
                     
                     if (!showOverlay && (banner.subtitle == null || banner.subtitle!.trim().isEmpty)) {
                       return const SizedBox.shrink();

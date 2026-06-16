@@ -20,6 +20,9 @@ import '../../widgets/seeker_html_template_swatch.dart';
 import '../common/pdf_view_screen.dart';
 import 'job_seeker_profile_edit_sheet.dart';
 import 'my_resumes_screen.dart';
+import 'settings_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../common/refer_and_earn_screen.dart';
 
 int _profileCompletenessPercent(Map<String, dynamic> p) {
   int s = 0;
@@ -427,12 +430,12 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
                                 shape: BoxShape.circle,
                                 color: Colors.white,
                                 border: Border.all(
-                                  color: Colors.white.withOpacity(0.5),
+                                  color: Colors.white.withOpacity(0.6),
                                   width: 3,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.15),
+                                    color: Colors.black.withOpacity(0.18),
                                     blurRadius: 20,
                                     offset: const Offset(0, 8),
                                   ),
@@ -507,22 +510,33 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 22,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.1,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 6),
                         Text(
                           location.isEmpty
                               ? 'Add location in Edit profile'
                               : location,
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.85),
+                            color: Colors.white.withOpacity(0.9),
                             fontSize: 14,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 18),
                         Container(
                           margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.18),
+                              width: 1,
+                            ),
+                          ),
                           child: Column(
                             children: [
                               Row(
@@ -530,34 +544,32 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'Profile completeness',
+                                    'Profile Completeness',
                                     style: TextStyle(
-                                      color: Colors.white.withOpacity(0.7),
-                                      fontSize: 12,
+                                      color: Colors.white.withOpacity(0.9),
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   Text(
                                     '$complete%',
                                     style: const TextStyle(
                                       color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 6),
+                              const SizedBox(height: 8),
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(10),
                                 child: LinearProgressIndicator(
                                   value: complete / 100,
-                                  backgroundColor: Colors.white.withOpacity(
-                                    0.2,
+                                  backgroundColor: Colors.white.withOpacity(0.25),
+                                  valueColor: const AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
                                   ),
-                                  valueColor:
-                                      const AlwaysStoppedAnimation<Color>(
-                                        Colors.white,
-                                      ),
                                   minHeight: 6,
                                 ),
                               ),
@@ -582,6 +594,8 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
                           child: _buildQuickAction(
                             icon: Icons.edit_document,
                             label: 'Edit Profile',
+                            bgColor: const Color(0xFFEEF2FF),
+                            iconColor: const Color(0xFF4F46E5),
                             onTap: _openEdit,
                           ),
                         ),
@@ -590,6 +604,8 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
                           child: _buildQuickAction(
                             icon: Icons.description_rounded,
                             label: 'My Resume',
+                            bgColor: const Color(0xFFECFDF5),
+                            iconColor: const Color(0xFF059669),
                             onTap: () => Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -606,7 +622,9 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
                         Expanded(
                           child: _buildQuickAction(
                             icon: Icons.shopping_bag_rounded,
-                            label: 'Plans & packages',
+                            label: 'Plans & Packages',
+                            bgColor: const Color(0xFFFFFBEB),
+                            iconColor: const Color(0xFFD97706),
                             onTap: () => Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -623,7 +641,9 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
                         Expanded(
                           child: _buildQuickAction(
                             icon: Icons.receipt_long_rounded,
-                            label: 'Purchase history',
+                            label: 'Purchase History',
+                            bgColor: const Color(0xFFFFF1F2),
+                            iconColor: const Color(0xFFE11D48),
                             onTap: () => Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -638,17 +658,31 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
                           child: _buildQuickAction(
                             icon: Icons.settings_rounded,
                             label: 'Settings',
-                            onTap: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('More settings coming soon'),
-                                ),
-                              );
-                            },
+                            bgColor: const Color(0xFFF1F5F9),
+                            iconColor: const Color(0xFF475569),
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const SettingsScreen(),
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 12),
-                        const Expanded(child: SizedBox()),
+                        Expanded(
+                          child: _buildQuickAction(
+                            icon: Icons.card_giftcard_rounded,
+                            label: 'Refer & Earn',
+                            bgColor: const Color(0xFFFAF5FF),
+                            iconColor: const Color(0xFF7C3AED),
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const ReferAndEarnScreen(audience: 'job_seeker'),
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 28),
@@ -680,6 +714,7 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
+                    _buildPersonalDetailsCard(p, textTheme),
                     _buildSectionCard(
                       title: 'Contact Information',
                       icon: Icons.contact_mail_outlined,
@@ -693,6 +728,33 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
                             Icons.location_on_outlined,
                             location.isEmpty ? '—' : location,
                           ),
+                          if ((p?['portfolio_url']?.toString().trim() ?? '').isNotEmpty) ...[
+                            const SizedBox(height: 12),
+                            InkWell(
+                              onTap: () {
+                                final url = p!['portfolio_url'].toString().trim();
+                                launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                              },
+                              child: Row(
+                                children: [
+                                  Icon(Icons.link_rounded, size: 18, color: AppColors.primary),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      p!['portfolio_url'].toString().trim(),
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: AppColors.primary,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -722,47 +784,75 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
                               Uri.tryParse(url)?.pathSegments.isNotEmpty == true
                               ? Uri.parse(url).pathSegments.last
                               : 'resume.pdf';
-                          return Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Resume uploaded',
-                                      style: textTheme.bodyLarge?.copyWith(
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.textPrimary,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      fileName,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: textTheme.bodySmall?.copyWith(
-                                        color: AppColors.textSecondary,
-                                      ),
-                                    ),
-                                  ],
+                          return Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade50,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.grey.shade200),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.shade50,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    Icons.picture_as_pdf_rounded,
+                                    color: Colors.red.shade700,
+                                    size: 24,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 10),
-                              FilledButton(
-                                onPressed: () async {
-                                  if (!context.mounted) return;
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => PdfViewScreen(
-                                        title: 'Resume (PDF)',
-                                        url: url,
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Resume uploaded',
+                                        style: textTheme.bodyLarge?.copyWith(
+                                          fontWeight: FontWeight.w800,
+                                          color: AppColors.textPrimary,
+                                          fontSize: 14,
+                                        ),
                                       ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        fileName,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: textTheme.bodySmall?.copyWith(
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                FilledButton(
+                                  onPressed: () async {
+                                    if (!context.mounted) return;
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => PdfViewScreen(
+                                          title: 'Resume (PDF)',
+                                          url: url,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  style: FilledButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
-                                  );
-                                },
-                                child: const Text('Open'),
-                              ),
-                            ],
+                                  ),
+                                  child: const Text('Open'),
+                                ),
+                              ],
+                            ),
                           );
                         },
                       ),
@@ -786,6 +876,9 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
                       ),
                     _buildEducationCard(p, textTheme),
                     const SizedBox(height: 16),
+                    _buildWorkExperienceCard(p, textTheme),
+                    _buildInternshipsCard(p, textTheme),
+                    _buildProjectsCard(p, textTheme),
                     _buildSectionCard(
                       title: 'Skills',
                       icon: Icons.code_rounded,
@@ -803,18 +896,22 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
                               children: skills.map((skill) {
                                 return Container(
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 14,
-                                    vertical: 8,
+                                    horizontal: 12,
+                                    vertical: 6,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: AppColors.primaryLight,
-                                    borderRadius: BorderRadius.circular(10),
+                                    color: AppColors.primary.withOpacity(0.06),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: AppColors.primary.withOpacity(0.12),
+                                      width: 1,
+                                    ),
                                   ),
                                   child: Text(
                                     skill,
                                     style: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w700,
                                       color: AppColors.primary,
                                     ),
                                   ),
@@ -823,6 +920,12 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
                             ),
                     ),
                     const SizedBox(height: 16),
+                    _buildCertificationsCard(p, textTheme),
+                    _buildLanguagesCard(p, textTheme),
+                    _buildAcademicAchievementsCard(p, textTheme),
+                    _buildAwardsCard(p, textTheme),
+                    _buildExamResultsCard(p, textTheme),
+                    _buildAchievementsCard(p, textTheme),
                     _buildSectionCard(
                       title: 'Career preferences',
                       icon: Icons.work_outline_rounded,
@@ -855,21 +958,25 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
                       height: 52,
                       child: OutlinedButton.icon(
                         onPressed: _logout,
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.logout_rounded,
-                          color: AppColors.error,
+                          color: Colors.red.shade700,
+                          size: 20,
                         ),
-                        label: const Text(
-                          'Logout',
+                        label: Text(
+                          'Log Out',
                           style: TextStyle(
-                            color: AppColors.error,
-                            fontWeight: FontWeight.w600,
+                            color: Colors.red.shade700,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                            letterSpacing: 0.2,
                           ),
                         ),
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppColors.error),
+                          side: BorderSide(color: Colors.red.shade200, width: 1.5),
+                          backgroundColor: Colors.red.shade50.withOpacity(0.4),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(14),
                           ),
                         ),
                       ),
@@ -888,35 +995,58 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
   Widget _buildQuickAction({
     required IconData icon,
     required String label,
+    required Color bgColor,
+    required Color iconColor,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 18),
+        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 8),
         decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(14),
+          color: bgColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: iconColor.withOpacity(0.12),
+            width: 1.5,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+              color: iconColor.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: AppColors.primary, size: 24),
-            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 4,
+                    offset: Offset(0, 1),
+                  ),
+                ],
+              ),
+              child: Icon(icon, color: iconColor, size: 22),
+            ),
+            const SizedBox(height: 10),
             Text(
               label,
               style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+                fontSize: 11.5,
+                fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary,
               ),
               textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -957,98 +1087,123 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
     const previewH = 72.0;
     const previewW = 52.0;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () => _openActiveResumeDraft(d),
-            borderRadius: BorderRadius.circular(12),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: previewW,
+                  height: previewH,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 4,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: SeekerHtmlTemplateSwatch(templateKey: htmlKey),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          title,
-                          style: textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.textPrimary,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              title,
+                              style: textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.textPrimary,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.success.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Text(
+                              'Active',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.success,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Updated ${_formatResumeDraftDate(updated)}',
+                        style: textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.success.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: const Text(
-                          'Active',
-                          style: TextStyle(
-                            fontSize: 11,
+                      const SizedBox(height: 6),
+                      GestureDetector(
+                        onTap: () => _openActiveResumeDraft(d),
+                        child: Text(
+                          'Tap to edit resume',
+                          style: textTheme.bodySmall?.copyWith(
+                            color: AppColors.primary,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.success,
+                            decoration: TextDecoration.underline,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Updated ${_formatResumeDraftDate(updated)}',
-                    style: textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Tap to edit resume',
-                    style: textTheme.bodySmall?.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      width: previewW,
-                      height: previewH,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.grey.shade100),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: SeekerHtmlTemplateSwatch(templateKey: htmlKey),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
+              ],
+            ),
+          ),
+          Divider(height: 1, color: Colors.grey.shade200),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+            child: TextButton.icon(
+              onPressed: _openMyResumesAndRefresh,
+              icon: const Icon(Icons.list_alt_rounded, size: 18),
+              label: const Text(
+                'Manage in My Resumes',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
+              style: TextButton.styleFrom(
+                minimumSize: const Size(0, 36),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 8),
-        TextButton.icon(
-          onPressed: _openMyResumesAndRefresh,
-          icon: const Icon(Icons.list_alt_rounded, size: 20),
-          label: const Text('Manage in My Resumes'),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -1065,9 +1220,9 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -1075,13 +1230,16 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 1),
-                child: Icon(icon, color: AppColors.primary, size: 22),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.08),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: AppColors.primary, size: 18),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   title,
@@ -1089,14 +1247,14 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w800,
                     color: AppColors.textPrimary,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
           child,
         ],
       ),
@@ -1208,6 +1366,612 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
                     ),
               ],
             ),
+    );
+  }
+
+  Widget _buildPersonalDetailsCard(Map<String, dynamic>? p, TextTheme textTheme) {
+    final dob = p?['dob']?.toString().trim() ?? '';
+    final gender = p?['gender']?.toString().trim() ?? '';
+    final hasContent = dob.isNotEmpty || gender.isNotEmpty;
+
+    if (!hasContent) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: _buildSectionCard(
+        title: 'Personal Details',
+        icon: Icons.person_outline_rounded,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (dob.isNotEmpty) ...[
+              Row(
+                children: [
+                  const Text(
+                    'Date of birth: ',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  Text(
+                    dob,
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+            if (dob.isNotEmpty && gender.isNotEmpty) const SizedBox(height: 8),
+            if (gender.isNotEmpty) ...[
+              Row(
+                children: [
+                  const Text(
+                    'Gender: ',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  Text(
+                    gender[0].toUpperCase() + gender.substring(1).toLowerCase(),
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWorkExperienceCard(Map<String, dynamic>? p, TextTheme textTheme) {
+    final raw = p?['work_experience'];
+    final rows = <Map<String, dynamic>>[];
+    if (raw is List) {
+      for (final e in raw) {
+        if (e is Map) {
+          rows.add(Map<String, dynamic>.from(e));
+        }
+      }
+    }
+    final validRows = rows.where((m) =>
+      (m['company_name']?.toString().trim().isNotEmpty == true) ||
+      (m['date_range']?.toString().trim().isNotEmpty == true)
+    ).toList();
+
+    if (validRows.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: _buildSectionCard(
+        title: 'Work experience',
+        icon: Icons.history_rounded,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (int i = 0; i < validRows.length; i++) ...[
+              if (i > 0) const SizedBox(height: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    validRows[i]['company_name']?.toString().trim() ?? '',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                    ),
+                  ),
+                  if (validRows[i]['date_range']?.toString().trim().isNotEmpty == true)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, bottom: 6),
+                      child: Text(
+                        validRows[i]['date_range'].toString().trim(),
+                        style: textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  if (validRows[i]['bullets'] is List) ...[
+                    for (final bullet in (validRows[i]['bullets'] as List))
+                      if (bullet.toString().trim().isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8, top: 4),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('• ', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                              Expanded(
+                                child: Text(
+                                  bullet.toString().trim(),
+                                  style: textTheme.bodyMedium?.copyWith(
+                                    color: AppColors.textSecondary,
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                  ],
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInternshipsCard(Map<String, dynamic>? p, TextTheme textTheme) {
+    final raw = p?['internships'];
+    final rows = <Map<String, dynamic>>[];
+    if (raw is List) {
+      for (final e in raw) {
+        if (e is Map) {
+          rows.add(Map<String, dynamic>.from(e));
+        }
+      }
+    }
+    final validRows = rows.where((m) =>
+      (m['organization']?.toString().trim().isNotEmpty == true) ||
+      (m['role']?.toString().trim().isNotEmpty == true)
+    ).toList();
+
+    if (validRows.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: _buildSectionCard(
+        title: 'Internships',
+        icon: Icons.badge_outlined,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (int i = 0; i < validRows.length; i++) ...[
+              if (i > 0) const SizedBox(height: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    validRows[i]['role']?.toString().trim().isNotEmpty == true
+                        ? '${validRows[i]['role']} at ${validRows[i]['organization']}'
+                        : validRows[i]['organization']?.toString().trim() ?? '',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                    ),
+                  ),
+                  if (validRows[i]['duration']?.toString().trim().isNotEmpty == true)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, bottom: 6),
+                      child: Text(
+                        validRows[i]['duration'].toString().trim(),
+                        style: textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  if (validRows[i]['description']?.toString().trim().isNotEmpty == true)
+                    Text(
+                      validRows[i]['description'].toString().trim(),
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: AppColors.textSecondary,
+                        height: 1.4,
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProjectsCard(Map<String, dynamic>? p, TextTheme textTheme) {
+    final raw = p?['projects'];
+    final rows = <Map<String, dynamic>>[];
+    if (raw is List) {
+      for (final e in raw) {
+        if (e is Map) {
+          rows.add(Map<String, dynamic>.from(e));
+        }
+      }
+    }
+    final validRows = rows.where((m) =>
+      (m['title']?.toString().trim().isNotEmpty == true)
+    ).toList();
+
+    if (validRows.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: _buildSectionCard(
+        title: 'Projects',
+        icon: Icons.folder_open_rounded,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (int i = 0; i < validRows.length; i++) ...[
+              if (i > 0) const SizedBox(height: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          validRows[i]['title']?.toString().trim() ?? '',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
+                      if (validRows[i]['link']?.toString().trim().isNotEmpty == true) ...[
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: const Icon(Icons.open_in_new_rounded, size: 18, color: AppColors.primary),
+                          constraints: const BoxConstraints(),
+                          padding: EdgeInsets.zero,
+                          onPressed: () {
+                            final url = validRows[i]['link'].toString().trim();
+                            launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                          },
+                        ),
+                      ],
+                    ],
+                  ),
+                  if (validRows[i]['description']?.toString().trim().isNotEmpty == true)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Text(
+                        validRows[i]['description'].toString().trim(),
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCertificationsCard(Map<String, dynamic>? p, TextTheme textTheme) {
+    final raw = p?['certifications_structured'];
+    final rows = <Map<String, dynamic>>[];
+    if (raw is List) {
+      for (final e in raw) {
+        if (e is Map) {
+          rows.add(Map<String, dynamic>.from(e));
+        }
+      }
+    }
+    final validRows = rows.where((m) =>
+      (m['name']?.toString().trim().isNotEmpty == true)
+    ).toList();
+
+    if (validRows.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: _buildSectionCard(
+        title: 'Certifications',
+        icon: Icons.card_membership_rounded,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (int i = 0; i < validRows.length; i++) ...[
+              if (i > 0) const SizedBox(height: 12),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.workspace_premium_outlined, size: 18, color: AppColors.primary),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          validRows[i]['name']?.toString().trim() ?? '',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                        if (validRows[i]['date']?.toString().trim().isNotEmpty == true)
+                          Text(
+                            validRows[i]['date'].toString().trim(),
+                            style: textTheme.bodySmall?.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLanguagesCard(Map<String, dynamic>? p, TextTheme textTheme) {
+    final raw = p?['languages_known'];
+    final rows = <Map<String, dynamic>>[];
+    if (raw is List) {
+      for (final e in raw) {
+        if (e is Map) {
+          rows.add(Map<String, dynamic>.from(e));
+        }
+      }
+    }
+    final validRows = rows.where((m) =>
+      (m['language']?.toString().trim().isNotEmpty == true)
+    ).toList();
+
+    if (validRows.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: _buildSectionCard(
+        title: 'Languages known',
+        icon: Icons.language_rounded,
+        child: Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: validRows.map((m) {
+            final lang = m['language'].toString().trim();
+            final prof = m['proficiency']?.toString().trim() ?? '';
+            final label = prof.isNotEmpty ? '$lang ($prof)' : lang;
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.06),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: AppColors.primary.withOpacity(0.12),
+                  width: 1,
+                ),
+              ),
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primary,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAcademicAchievementsCard(Map<String, dynamic>? p, TextTheme textTheme) {
+    final raw = p?['academic_achievements'];
+    final rows = <Map<String, dynamic>>[];
+    if (raw is List) {
+      for (final e in raw) {
+        if (e is Map) {
+          rows.add(Map<String, dynamic>.from(e));
+        }
+      }
+    }
+    final validRows = rows.where((m) =>
+      (m['title']?.toString().trim().isNotEmpty == true)
+    ).toList();
+
+    if (validRows.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: _buildSectionCard(
+        title: 'Academic achievements',
+        icon: Icons.star_border_purple500_rounded,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (int i = 0; i < validRows.length; i++) ...[
+              if (i > 0) const SizedBox(height: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    validRows[i]['title']?.toString().trim() ?? '',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                  if (validRows[i]['detail']?.toString().trim().isNotEmpty == true)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(
+                        validRows[i]['detail'].toString().trim(),
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAwardsCard(Map<String, dynamic>? p, TextTheme textTheme) {
+    final raw = p?['awards_honors'];
+    final rows = <Map<String, dynamic>>[];
+    if (raw is List) {
+      for (final e in raw) {
+        if (e is Map) {
+          rows.add(Map<String, dynamic>.from(e));
+        }
+      }
+    }
+    final validRows = rows.where((m) =>
+      (m['title']?.toString().trim().isNotEmpty == true)
+    ).toList();
+
+    if (validRows.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: _buildSectionCard(
+        title: 'Awards & honors',
+        icon: Icons.emoji_events_outlined,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (int i = 0; i < validRows.length; i++) ...[
+              if (i > 0) const SizedBox(height: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    validRows[i]['title']?.toString().trim() ?? '',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                  if (validRows[i]['detail']?.toString().trim().isNotEmpty == true)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(
+                        validRows[i]['detail'].toString().trim(),
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExamResultsCard(Map<String, dynamic>? p, TextTheme textTheme) {
+    final raw = p?['competitive_exam_results'];
+    final rows = <Map<String, dynamic>>[];
+    if (raw is List) {
+      for (final e in raw) {
+        if (e is Map) {
+          rows.add(Map<String, dynamic>.from(e));
+        }
+      }
+    }
+    final validRows = rows.where((m) =>
+      (m['exam']?.toString().trim().isNotEmpty == true)
+    ).toList();
+
+    if (validRows.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: _buildSectionCard(
+        title: 'Competitive exam results',
+        icon: Icons.assignment_turned_in_outlined,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (int i = 0; i < validRows.length; i++) ...[
+              if (i > 0) const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      validRows[i]['exam']?.toString().trim() ?? '',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    validRows[i]['result']?.toString().trim() ?? '',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAchievementsCard(Map<String, dynamic>? p, TextTheme textTheme) {
+    final raw = p?['achievements'];
+    final rows = <String>[];
+    if (raw is List) {
+      for (final e in raw) {
+        if (e != null && e.toString().trim().isNotEmpty) {
+          rows.add(e.toString().trim());
+        }
+      }
+    }
+
+    if (rows.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: _buildSectionCard(
+        title: 'Achievements',
+        icon: Icons.workspace_premium_rounded,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (final achievement in rows)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('• ', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                    Expanded(
+                      child: Text(
+                        achievement,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 

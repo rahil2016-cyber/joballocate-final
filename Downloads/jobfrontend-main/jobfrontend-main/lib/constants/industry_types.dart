@@ -71,6 +71,38 @@ const List<IndustryTypeOption> kIndustryTypes = [
     'BPO Telecaller',
   ),
   IndustryTypeOption(
+    'retail_e_commerce',
+    'Retail & E-commerce',
+  ),
+  IndustryTypeOption(
+    'hospitality_food',
+    'Hospitality & Food Service',
+  ),
+  IndustryTypeOption(
+    'delivery_driving',
+    'Delivery & Driving',
+  ),
+  IndustryTypeOption(
+    'construction_real_estate',
+    'Construction & Real Estate',
+  ),
+  IndustryTypeOption(
+    'media_entertainment',
+    'Media & Entertainment',
+  ),
+  IndustryTypeOption(
+    'automotive',
+    'Automotive & Mechanic',
+  ),
+  IndustryTypeOption(
+    'beauty_wellness',
+    'Beauty & Wellness',
+  ),
+  IndustryTypeOption(
+    'security_housekeeping',
+    'Security & Housekeeping',
+  ),
+  IndustryTypeOption(
     'other_general',
     'Other / general',
   ),

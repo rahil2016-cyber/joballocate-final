@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../services/refer_earn_api_service.dart';
 import '../../utils/app_colors.dart';
@@ -159,13 +160,39 @@ class _ReferAndEarnScreenState extends State<ReferAndEarnScreen> {
                           const SizedBox(height: 12),
                           SizedBox(
                             width: double.infinity,
-                            child: OutlinedButton.icon(
-                              onPressed: () {
-                                final share = _data['share_message']?.toString() ?? '';
-                                if (share.isNotEmpty) _copy(share, 'Share message');
-                              },
-                              icon: const Icon(Icons.share_rounded),
-                              label: const Text('Copy share message'),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: FilledButton.icon(
+                                    onPressed: () {
+                                      final share = _data['share_message']?.toString() ?? '';
+                                      if (share.isNotEmpty) {
+                                        Share.share(share);
+                                      }
+                                    },
+                                    icon: const Icon(Icons.share_rounded),
+                                    label: const Text('Share Code'),
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor: AppColors.primary,
+                                      padding: const EdgeInsets.symmetric(vertical: 14),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                OutlinedButton.icon(
+                                  onPressed: () {
+                                    final share = _data['share_message']?.toString() ?? '';
+                                    if (share.isNotEmpty) _copy(share, 'Share message');
+                                  },
+                                  icon: const Icon(Icons.copy_rounded),
+                                  label: const Text('Copy'),
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],

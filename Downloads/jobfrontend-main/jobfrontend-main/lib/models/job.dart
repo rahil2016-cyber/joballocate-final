@@ -35,6 +35,23 @@ class Job {
   final String? roleCategory;
   final String? functionalArea;
   final String? education;
+  final String? assetsRequired;
+  final String? languages;
+  final String? incentiveDetail;
+  final String? jobTimings;
+  final String? workingDays;
+  final int? ageMin;
+  final int? ageMax;
+  final String? genderPreference;
+  final String? contactPreference;
+  final String? contactPerson;
+  final String? contactPhone;
+  final String? contactEmail;
+  final String? department;
+  final String? role;
+  final Map<String, dynamic>? company;
+  final bool securityDeposit;
+  final String? interviewTimings;
 
   Job({
     required this.id,
@@ -63,6 +80,23 @@ class Job {
     this.roleCategory,
     this.functionalArea,
     this.education,
+    this.assetsRequired,
+    this.languages,
+    this.incentiveDetail,
+    this.jobTimings,
+    this.workingDays,
+    this.ageMin,
+    this.ageMax,
+    this.genderPreference,
+    this.contactPreference,
+    this.contactPerson,
+    this.contactPhone,
+    this.contactEmail,
+    this.department,
+    this.role,
+    this.company,
+    this.securityDeposit = false,
+    this.interviewTimings,
   });
 
   final String? benefits;
@@ -154,6 +188,23 @@ class Job {
       roleCategory: json['role_category']?.toString(),
       functionalArea: json['functional_area']?.toString(),
       education: json['education']?.toString(),
+      assetsRequired: json['assets_required']?.toString(),
+      languages: json['languages']?.toString(),
+      incentiveDetail: json['incentive_detail']?.toString(),
+      jobTimings: json['job_timings']?.toString(),
+      workingDays: json['working_days']?.toString(),
+      ageMin: json['age_min'] is int ? json['age_min'] as int : int.tryParse(json['age_min']?.toString() ?? ''),
+      ageMax: json['age_max'] is int ? json['age_max'] as int : int.tryParse(json['age_max']?.toString() ?? ''),
+      genderPreference: json['gender_preference']?.toString(),
+      contactPreference: json['contact_preference']?.toString(),
+      contactPerson: json['contact_person']?.toString(),
+      contactPhone: json['contact_phone']?.toString(),
+      contactEmail: json['contact_email']?.toString(),
+      department: json['department']?.toString(),
+      role: json['role']?.toString(),
+      company: json['company'] is Map ? Map<String, dynamic>.from(json['company'] as Map) : null,
+      securityDeposit: json['security_deposit'] is bool ? json['security_deposit'] as bool : (json['security_deposit']?.toString() == '1' || json['security_deposit']?.toString().toLowerCase() == 'true'),
+      interviewTimings: json['interview_timings']?.toString(),
     );
   }
 
@@ -202,6 +253,23 @@ class Job {
       roleCategory: json['role_category']?.toString(),
       functionalArea: json['functional_area']?.toString(),
       education: json['education']?.toString(),
+      assetsRequired: json['assets_required']?.toString(),
+      languages: json['languages']?.toString(),
+      incentiveDetail: json['incentive_detail']?.toString(),
+      jobTimings: json['job_timings']?.toString(),
+      workingDays: json['working_days']?.toString(),
+      ageMin: json['age_min'] is int ? json['age_min'] as int : int.tryParse(json['age_min']?.toString() ?? ''),
+      ageMax: json['age_max'] is int ? json['age_max'] as int : int.tryParse(json['age_max']?.toString() ?? ''),
+      genderPreference: json['gender_preference']?.toString(),
+      contactPreference: json['contact_preference']?.toString(),
+      contactPerson: json['contact_person']?.toString(),
+      contactPhone: json['contact_phone']?.toString(),
+      contactEmail: json['contact_email']?.toString(),
+      department: json['department']?.toString(),
+      role: json['role']?.toString(),
+      company: json['company'] is Map ? Map<String, dynamic>.from(json['company'] as Map) : null,
+      securityDeposit: json['security_deposit'] is bool ? json['security_deposit'] as bool : (json['security_deposit']?.toString() == '1' || json['security_deposit']?.toString().toLowerCase() == 'true'),
+      interviewTimings: json['interview_timings']?.toString(),
     );
   }
 
