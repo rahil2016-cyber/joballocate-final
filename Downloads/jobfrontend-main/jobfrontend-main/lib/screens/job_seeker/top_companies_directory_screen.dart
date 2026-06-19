@@ -120,20 +120,40 @@ class _TopCompaniesDirectoryScreenState
             borderRadius: BorderRadius.circular(16),
             side: const BorderSide(color: Color(0xFFF1F5F9)),
           ),
-          leading: CircleAvatar(
-            backgroundColor: AppColors.primaryLight,
-            backgroundImage: resolvedLogo != null
-                ? NetworkImage(resolvedLogo)
-                : null,
-            child: resolvedLogo == null
-                ? Text(
-                    c.name.isNotEmpty ? c.name[0].toUpperCase() : 'C',
-                    style: const TextStyle(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w800,
+          leading: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppColors.primaryLight,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFFF1F5F9)),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: resolvedLogo != null
+                ? Image.network(
+                    resolvedLogo,
+                    fit: BoxFit.contain,
+                    width: 40,
+                    height: 40,
+                    errorBuilder: (_, __, ___) => Center(
+                      child: Text(
+                        c.name.isNotEmpty ? c.name[0].toUpperCase() : 'C',
+                        style: const TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
                     ),
                   )
-                : null,
+                : Center(
+                    child: Text(
+                      c.name.isNotEmpty ? c.name[0].toUpperCase() : 'C',
+                      style: const TextStyle(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
           ),
           title: Text(c.name, style: const TextStyle(fontWeight: FontWeight.w700)),
           subtitle: Text('${c.openJobsCount} open role${c.openJobsCount == 1 ? '' : 's'}'),

@@ -954,11 +954,11 @@ class _JobFeedPageState extends State<_JobFeedPage> with AutomaticKeepAliveClien
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildEmojiButton('😠', 1),
-              _buildEmojiButton('🙁', 2),
-              _buildEmojiButton('😐', 3),
-              _buildEmojiButton('🙂', 4),
-              _buildEmojiButton('😄', 5),
+              Expanded(child: _buildEmojiButton('😠', 1)),
+              Expanded(child: _buildEmojiButton('🙁', 2)),
+              Expanded(child: _buildEmojiButton('😐', 3)),
+              Expanded(child: _buildEmojiButton('🙂', 4)),
+              Expanded(child: _buildEmojiButton('😄', 5)),
             ],
           ),
         ],
@@ -967,41 +967,43 @@ class _JobFeedPageState extends State<_JobFeedPage> with AutomaticKeepAliveClien
   }
 
   Widget _buildEmojiButton(String emoji, int rating) {
-    return GestureDetector(
-      onTap: () async {
-        try {
-          await JobSeekerApiService.instance.submitSeekerFeedback(rating: rating);
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setBool('feedback_submitted', true);
-          if (mounted) {
-            setState(() {
-              _showFeedback = false;
-            });
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Thank you for your feedback! ❤️'),
-                behavior: SnackBarBehavior.floating,
-                margin: EdgeInsets.all(16),
-              ),
-            );
+    return Center(
+      child: GestureDetector(
+        onTap: () async {
+          try {
+            await JobSeekerApiService.instance.submitSeekerFeedback(rating: rating);
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setBool('feedback_submitted', true);
+            if (mounted) {
+              setState(() {
+                _showFeedback = false;
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Thank you for your feedback! ❤️'),
+                  behavior: SnackBarBehavior.floating,
+                  margin: EdgeInsets.all(16),
+                ),
+              );
+            }
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Failed to submit feedback: $e')),
+              );
+            }
           }
-        } catch (e) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Failed to submit feedback: $e')),
-            );
-          }
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.grey[50],
-          shape: BoxShape.circle,
-        ),
-        child: Text(
-          emoji,
-          style: const TextStyle(fontSize: 32),
+        },
+        child: Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: Colors.grey[50],
+            shape: BoxShape.circle,
+          ),
+          child: Text(
+            emoji,
+            style: const TextStyle(fontSize: 26),
+          ),
         ),
       ),
     );
@@ -1822,7 +1824,9 @@ class _TopCompaniesSection extends StatelessWidget {
                               child: logoUrl != null
                                   ? Image.network(
                                       logoUrl,
-                                      fit: BoxFit.cover,
+                                      fit: BoxFit.contain,
+                                      width: 64,
+                                      height: 64,
                                       errorBuilder: (_, __, ___) => Center(
                                         child: Text(
                                           c.name.isNotEmpty
@@ -2055,8 +2059,9 @@ class _HorizontalJobSection extends StatelessWidget {
                             width: 48,
                             height: 48,
                             decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.1),
+                              color: Colors.white,
                               borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: const Color(0xFFE2E8F0)),
                             ),
                             child: Center(
                               child: job.companyLogoUrl != null && job.companyLogoUrl!.isNotEmpty
@@ -2064,7 +2069,9 @@ class _HorizontalJobSection extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(8),
                                       child: Image.network(
                                         job.companyLogoUrl!,
-                                        fit: BoxFit.cover,
+                                        fit: BoxFit.contain,
+                                        width: 48,
+                                        height: 48,
                                         errorBuilder: (context, error, stackTrace) {
                                           return Text(
                                             job.companyName.isNotEmpty ? job.companyName[0].toUpperCase() : '?',
@@ -2097,7 +2104,7 @@ class _HorizontalJobSection extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
+                          color: AppColors.primary,
                           letterSpacing: -0.2,
                         ),
                         maxLines: 1,

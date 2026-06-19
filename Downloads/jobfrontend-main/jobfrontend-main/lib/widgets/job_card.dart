@@ -63,14 +63,17 @@ class JobCardWidget extends StatelessWidget {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: AppColors.primaryLight,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFFF1F5F9)),
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: job.companyLogoUrl != null
                           ? CachedNetworkImage(
                               imageUrl: job.companyLogoUrl!,
-                              fit: BoxFit.cover,
+                              fit: BoxFit.contain,
+                              width: 48,
+                              height: 48,
                               placeholder: (context, url) => const Center(
                                 child: SizedBox(
                                   width: 20,
@@ -113,7 +116,7 @@ class JobCardWidget extends StatelessWidget {
                             job.title,
                             style: textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
+                              color: AppColors.primary,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -312,6 +315,7 @@ class JobCardWidget extends StatelessWidget {
                             backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
                             elevation: 0,
+                            minimumSize: const Size(0, 0),
                             padding: const EdgeInsets.symmetric(horizontal: 20),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),

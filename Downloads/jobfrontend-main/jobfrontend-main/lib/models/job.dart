@@ -52,6 +52,7 @@ class Job {
   final Map<String, dynamic>? company;
   final bool securityDeposit;
   final String? interviewTimings;
+  final String? securityDepositAmount;
 
   Job({
     required this.id,
@@ -97,6 +98,7 @@ class Job {
     this.company,
     this.securityDeposit = false,
     this.interviewTimings,
+    this.securityDepositAmount,
   });
 
   final String? benefits;
@@ -205,6 +207,7 @@ class Job {
       company: json['company'] is Map ? Map<String, dynamic>.from(json['company'] as Map) : null,
       securityDeposit: json['security_deposit'] is bool ? json['security_deposit'] as bool : (json['security_deposit']?.toString() == '1' || json['security_deposit']?.toString().toLowerCase() == 'true'),
       interviewTimings: json['interview_timings']?.toString(),
+      securityDepositAmount: json['security_deposit_amount']?.toString(),
     );
   }
 
@@ -270,6 +273,7 @@ class Job {
       company: json['company'] is Map ? Map<String, dynamic>.from(json['company'] as Map) : null,
       securityDeposit: json['security_deposit'] is bool ? json['security_deposit'] as bool : (json['security_deposit']?.toString() == '1' || json['security_deposit']?.toString().toLowerCase() == 'true'),
       interviewTimings: json['interview_timings']?.toString(),
+      securityDepositAmount: json['security_deposit_amount']?.toString(),
     );
   }
 

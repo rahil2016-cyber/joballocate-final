@@ -647,6 +647,15 @@ class _JobSeekerProfileEditSheetState extends State<JobSeekerProfileEditSheet> {
           .where((m) => m.values.any((v) => v.toString().trim().isNotEmpty))
           .toList();
 
+      String? portfolioUrl = _portfolioCtrl.text.trim();
+      if (portfolioUrl.isNotEmpty) {
+        if (!portfolioUrl.startsWith('http://') && !portfolioUrl.startsWith('https://')) {
+          portfolioUrl = 'https://$portfolioUrl';
+        }
+      } else {
+        portfolioUrl = null;
+      }
+
       final body = <String, dynamic>{
         'headline': _headlineCtrl.text.trim().isEmpty
             ? null
@@ -709,7 +718,7 @@ class _JobSeekerProfileEditSheetState extends State<JobSeekerProfileEditSheet> {
             .map((r) => r.toJson())
             .where((m) => m.values.any((v) => v.toString().trim().isNotEmpty))
             .toList(),
-        'portfolio_url': _portfolioCtrl.text.trim().isEmpty ? null : _portfolioCtrl.text.trim(),
+        'portfolio_url': portfolioUrl,
         'phone': _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
         'email': _emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim(),
         'dob': _dobCtrl.text.trim().isEmpty ? null : _dobCtrl.text.trim(),
@@ -718,7 +727,6 @@ class _JobSeekerProfileEditSheetState extends State<JobSeekerProfileEditSheet> {
       if (_profilePhotoBase64 != null) {
         body['profile_photo'] = _profilePhotoBase64;
       }
-      body.removeWhere((k, v) => v == null);
 
       await JobSeekerApiService.instance.updateSeekerProfile(body);
       if (!mounted) return;
@@ -978,11 +986,34 @@ class _JobSeekerProfileEditSheetState extends State<JobSeekerProfileEditSheet> {
                   const SizedBox(height: 12),
                   TextField(
                     controller: _dobCtrl,
+                    readOnly: true,
                     decoration: const InputDecoration(
                       labelText: 'Date of Birth',
-                      hintText: 'e.g. 1995-05-20',
+                      hintText: 'Select Date of Birth',
                       border: OutlineInputBorder(),
+                      suffixIcon: Icon(Icons.calendar_today_rounded),
                     ),
+                    onTap: () async {
+                      DateTime initialDate = DateTime.now().subtract(const Duration(days: 365 * 18));
+                      if (_dobCtrl.text.isNotEmpty) {
+                        final parsed = DateTime.tryParse(_dobCtrl.text.trim());
+                        if (parsed != null) {
+                          initialDate = parsed;
+                        }
+                      }
+                      final pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: initialDate,
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime.now(),
+                      );
+                      if (pickedDate != null) {
+                        final formattedDate = "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
+                        setState(() {
+                          _dobCtrl.text = formattedDate;
+                        });
+                      }
+                    },
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(

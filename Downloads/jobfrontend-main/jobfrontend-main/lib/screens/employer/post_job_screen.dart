@@ -93,7 +93,8 @@ class PostJobScreen extends StatefulWidget {
 class _PostJobScreenState extends State<PostJobScreen> {
   final _formKey = GlobalKey<FormState>();
   
-  // Step tracker
+  // Scroll and Step tracker
+  final _scrollController = ScrollController();
   int _currentStep = 0; // 0: Job Details, 1: Job Descriptions, 2: Company Details
 
   // Controllers
@@ -139,6 +140,9 @@ class _PostJobScreenState extends State<PostJobScreen> {
   String _selectedExperience = 'mid';
   String _selectedWorkMode = 'office';
   bool _securityDeposit = false;
+  final _securityDepositAmountController = TextEditingController();
+  bool _hasIncentive = false;
+  String _lastAutoSetRole = '';
   String? _industryType;
   final _customIndustryController = TextEditingController();
 
@@ -163,6 +167,163 @@ class _PostJobScreenState extends State<PostJobScreen> {
     return int.tryParse(raw.toString());
   }
 
+  static const List<String> _commonBenefits = [
+    'Health Insurance',
+    'Work From Home',
+    'Flexible Hours',
+    'Free Snacks / Meals',
+    'Paid Time Off (PTO)',
+    'Performance Bonus',
+    'Travel Allowance',
+    'Retirement Plan (PF)',
+    'Sick Leave',
+    'Free Training',
+  ];
+
+  List<String> get _parsedBenefits {
+    final txt = _benefitsController.text.trim();
+    if (txt.isEmpty) return [];
+    return txt.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+  }
+
+  void _toggleBenefit(String benefit) {
+    final current = _parsedBenefits;
+    if (current.contains(benefit)) {
+      current.remove(benefit);
+    } else {
+      current.add(benefit);
+    }
+    setState(() {
+      _benefitsController.text = current.join(', ');
+    });
+  }
+
+  static const List<String> _timeOptions = [
+    '08:00 AM', '08:30 AM', '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM',
+    '11:00 AM', '11:30 AM', '12:00 PM', '12:30 PM', '01:00 PM', '01:30 PM',
+    '02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM', '04:00 PM', '04:30 PM',
+    '05:00 PM', '05:30 PM', '06:00 PM', '06:30 PM', '07:00 PM', '07:30 PM',
+    '08:00 PM'
+  ];
+
+  static const List<String> _dayRangeOptions = [
+    'Monday to Saturday',
+    'Monday to Friday',
+    'Monday to Thursday',
+    'Flexible / All Days',
+    'Custom'
+  ];
+
+  String _selectedWorkDayRange = 'Monday to Saturday';
+  String _workStartTime = '09:30 AM';
+  String _workEndTime = '06:30 PM';
+
+  String _selectedInterviewDayRange = 'Monday to Saturday';
+  String _interviewStartTime = '11:00 AM';
+  String _interviewEndTime = '04:00 PM';
+
+  void _initTimings() {
+    final workTxt = _jobTimingsController.text.trim();
+    if (workTxt.isNotEmpty) {
+      _parseTimingString(
+        workTxt,
+        (dayRange, start, end) {
+          _selectedWorkDayRange = dayRange;
+          _workStartTime = start;
+          _workEndTime = end;
+        },
+      );
+    } else {
+      _updateWorkTimingText();
+    }
+
+    final interviewTxt = _interviewTimingsController.text.trim();
+    if (interviewTxt.isNotEmpty) {
+      _parseTimingString(
+        interviewTxt,
+        (dayRange, start, end) {
+          _selectedInterviewDayRange = dayRange;
+          _interviewStartTime = start;
+          _interviewEndTime = end;
+        },
+      );
+    } else {
+      _updateInterviewTimingText();
+    }
+  }
+
+  void _parseTimingString(String txt, void Function(String dayRange, String start, String end) onParsed) {
+    try {
+      final parts = txt.split('|');
+      String dayRange = 'Custom';
+      if (parts.length > 1) {
+        final possibleDayRange = parts[1].trim();
+        if (_dayRangeOptions.contains(possibleDayRange)) {
+          dayRange = possibleDayRange;
+        }
+      }
+      
+      final timesPart = parts[0].trim();
+      final timeSplit = timesPart.split('-');
+      String start = '09:00 AM';
+      String end = '05:00 PM';
+      if (timeSplit.length > 1) {
+        final possibleStart = _normalizeTime(timeSplit[0].trim());
+        final possibleEnd = _normalizeTime(timeSplit[1].trim());
+        if (_timeOptions.contains(possibleStart)) {
+          start = possibleStart;
+        }
+        if (_timeOptions.contains(possibleEnd)) {
+          end = possibleEnd;
+        }
+      }
+      onParsed(dayRange, start, end);
+    } catch (_) {
+      onParsed('Custom', '09:00 AM', '05:00 PM');
+    }
+  }
+
+  String _normalizeTime(String raw) {
+    var clean = raw.toLowerCase().replaceAll('.', ':').replaceAll(' ', '');
+    bool isPm = clean.contains('pm');
+    bool isAm = clean.contains('am');
+    clean = clean.replaceAll('pm', '').replaceAll('am', '');
+    final parts = clean.split(':');
+    if (parts.isEmpty) return '09:00 AM';
+    
+    int hour = int.tryParse(parts[0]) ?? 9;
+    int minute = parts.length > 1 ? (int.tryParse(parts[1]) ?? 0) : 0;
+    
+    String period = 'AM';
+    if (isPm) {
+      period = 'PM';
+    } else if (isAm) {
+      period = 'AM';
+    } else {
+      if (hour >= 1 && hour <= 7) {
+        period = 'PM';
+      } else if (hour == 12) {
+        period = 'PM';
+      } else {
+        period = 'AM';
+      }
+    }
+    
+    final hStr = hour.toString().padLeft(2, '0');
+    final mStr = minute.toString().padLeft(2, '0');
+    return '$hStr:$mStr $period';
+  }
+
+  void _updateWorkTimingText() {
+    if (_selectedWorkDayRange == 'Custom') return;
+    _jobTimingsController.text = '$_workStartTime - $_workEndTime | $_selectedWorkDayRange';
+  }
+
+  void _updateInterviewTimingText() {
+    if (_selectedInterviewDayRange == 'Custom') return;
+    _interviewTimingsController.text = '$_interviewStartTime - $_interviewEndTime | $_selectedInterviewDayRange';
+  }
+
   bool get _isEdit => _editJobId != null;
 
   @override
@@ -170,7 +331,10 @@ class _PostJobScreenState extends State<PostJobScreen> {
     super.initState();
     _fetchProfileData();
     final j = widget.existingJob;
-    if (j == null) return;
+    if (j == null) {
+      _initTimings();
+      return;
+    }
     
     _titleController.text = j['title']?.toString() ?? '';
     _descController.text = j['description']?.toString() ?? '';
@@ -195,6 +359,7 @@ class _PostJobScreenState extends State<PostJobScreen> {
     }
 
     _securityDeposit = j['security_deposit'] == true;
+    _securityDepositAmountController.text = j['security_deposit_amount']?.toString() ?? '';
 
     final skills = j['skills'];
     if (skills is List) {
@@ -242,6 +407,7 @@ class _PostJobScreenState extends State<PostJobScreen> {
     _assetsRequiredController.text = j['assets_required']?.toString() ?? '';
     _languagesController.text = j['languages']?.toString() ?? 'Speaks thoda english';
     _incentiveDetailController.text = j['incentive_detail']?.toString() ?? '';
+    _hasIncentive = _incentiveDetailController.text.trim().isNotEmpty;
     _jobTimingsController.text = j['job_timings']?.toString() ?? '';
     _interviewTimingsController.text = j['interview_timings']?.toString() ?? '';
     _workingDaysController.text = j['working_days']?.toString() ?? '';
@@ -254,12 +420,14 @@ class _PostJobScreenState extends State<PostJobScreen> {
     _contactEmailController.text = j['contact_email']?.toString() ?? '';
     _departmentController.text = j['department']?.toString() ?? '';
     _roleController.text = j['role']?.toString() ?? '';
+    _lastAutoSetRole = j['role']?.toString() ?? '';
 
     if (_selectedExperience == 'fresher') {
       _experiencePreference = 'fresher';
     } else {
       _experiencePreference = 'experienced';
     }
+    _initTimings();
   }
 
   Future<void> _fetchProfileData() async {
@@ -320,7 +488,6 @@ class _PostJobScreenState extends State<PostJobScreen> {
       if (_titleController.text.trim().isEmpty) return false;
       if (_industryType == null) return false;
       if (_industryType == 'none_of_above' && _customIndustryController.text.trim().isEmpty) return false;
-      if (_roleController.text.trim().isEmpty) return false;
       if (_locationController.text.trim().isEmpty) return false;
       return true;
     } else if (step == 1) {
@@ -344,6 +511,11 @@ class _PostJobScreenState extends State<PostJobScreen> {
     setState(() {
       _currentStep++;
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(0.0);
+      }
+    });
   }
 
   @override
@@ -360,6 +532,11 @@ class _PostJobScreenState extends State<PostJobScreen> {
           onPressed: () {
             if (_currentStep > 0) {
               setState(() => _currentStep--);
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (_scrollController.hasClients) {
+                  _scrollController.jumpTo(0.0);
+                }
+              });
             } else {
               Navigator.pop(context);
             }
@@ -414,6 +591,7 @@ class _PostJobScreenState extends State<PostJobScreen> {
             child: Form(
               key: _formKey,
               child: SingleChildScrollView(
+                controller: _scrollController,
                 padding: const EdgeInsets.all(20),
                 child: _buildCurrentStepView(textTheme),
               ),
@@ -501,6 +679,10 @@ class _PostJobScreenState extends State<PostJobScreen> {
               _industryType = v;
               _roleController.clear();
               _addedSkills.clear();
+              if (_titleController.text.trim() == _lastAutoSetRole) {
+                _titleController.clear();
+              }
+              _lastAutoSetRole = '';
             });
           },
         ),
@@ -524,17 +706,7 @@ class _PostJobScreenState extends State<PostJobScreen> {
           _buildRoleSelectionChips(),
         ],
 
-        const SizedBox(height: 20),
-        _buildLabel('Write Custom Job Role / Designation (if not in list) *'),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: _roleController,
-          decoration: InputDecoration(
-            hintText: 'e.g. Lead Technical Architect',
-            suffixIcon: _buildFieldCheckmark(_roleController.text.trim().isNotEmpty),
-          ),
-          onChanged: (_) => setState(() {}),
-        ),
+
 
         const SizedBox(height: 24),
         _buildSectionHeader('Job Structure & Location'),
@@ -551,29 +723,7 @@ class _PostJobScreenState extends State<PostJobScreen> {
           onChanged: (_) => setState(() {}),
         ),
 
-        const SizedBox(height: 20),
-        _buildLabel('Role category'),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: _roleCategoryController,
-          decoration: InputDecoration(
-            hintText: 'e.g. Software Development',
-            suffixIcon: _buildFieldCheckmark(_roleCategoryController.text.trim().isNotEmpty),
-          ),
-          onChanged: (_) => setState(() {}),
-        ),
 
-        const SizedBox(height: 20),
-        _buildLabel('Functional area'),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: _functionalAreaController,
-          decoration: InputDecoration(
-            hintText: 'e.g. Engineering - Software',
-            suffixIcon: _buildFieldCheckmark(_functionalAreaController.text.trim().isNotEmpty),
-          ),
-          onChanged: (_) => setState(() {}),
-        ),
 
         const SizedBox(height: 20),
         _buildLabel('Job Location *'),
@@ -696,60 +846,312 @@ class _PostJobScreenState extends State<PostJobScreen> {
           onChanged: (val) {
             setState(() {
               _securityDeposit = val;
+              if (!val) {
+                _securityDepositAmountController.clear();
+              }
             });
           },
         ),
+        if (_securityDeposit) ...[
+          const SizedBox(height: 16),
+          _buildLabel('Security Deposit Details / Amount *'),
+          const SizedBox(height: 8),
+          TextFormField(
+            controller: _securityDepositAmountController,
+            decoration: InputDecoration(
+              hintText: 'e.g. ₹2000 for Uniform & Bike Kit',
+              suffixIcon: _buildFieldCheckmark(_securityDepositAmountController.text.trim().isNotEmpty),
+            ),
+            onChanged: (_) => setState(() {}),
+            validator: (value) {
+              if (_securityDeposit && (value == null || value.trim().isEmpty)) {
+                return 'Please enter security deposit details';
+              }
+              return null;
+            },
+          ),
+        ],
 
         const SizedBox(height: 24),
         _buildSectionHeader('Job Role Descriptions'),
         const SizedBox(height: 16),
 
-        _buildLabel('Describe The Job Role For The Staff *'),
+        _buildLabel('Describe The Job Role For The Staff (Please write in points) *'),
         const SizedBox(height: 8),
         TextFormField(
           controller: _descController,
           maxLines: 4,
           decoration: InputDecoration(
-            hintText: 'Describe the role, duties, and what makes this job exciting...',
+            hintText: 'Please write in points / lines (e.g. \n- Coordinate with team\n- Build high-quality APIs\n- Write unit tests)',
             suffixIcon: _buildFieldCheckmark(_descController.text.trim().isNotEmpty),
           ),
           onChanged: (_) => setState(() {}),
         ),
 
         const SizedBox(height: 20),
-        _buildLabel('Work Timings *'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildLabel('Work Timings *'),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  if (_selectedWorkDayRange == 'Custom') {
+                    _selectedWorkDayRange = 'Monday to Saturday';
+                    _updateWorkTimingText();
+                  } else {
+                    _selectedWorkDayRange = 'Custom';
+                  }
+                });
+              },
+              child: Text(
+                _selectedWorkDayRange == 'Custom' ? 'Use automatic timings' : 'Enter manually',
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primary),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        if (_selectedWorkDayRange != 'Custom') ...[
+          DropdownButtonFormField<String>(
+            value: _dayRangeOptions.contains(_selectedWorkDayRange) ? _selectedWorkDayRange : 'Monday to Saturday',
+            decoration: const InputDecoration(labelText: 'Days'),
+            items: _dayRangeOptions.where((d) => d != 'Custom').map((dayRange) {
+              return DropdownMenuItem<String>(
+                value: dayRange,
+                child: Text(dayRange),
+              );
+            }).toList(),
+            onChanged: (val) {
+              if (val != null) {
+                setState(() {
+                  _selectedWorkDayRange = val;
+                  _updateWorkTimingText();
+                });
+              }
+            },
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  value: _timeOptions.contains(_workStartTime) ? _workStartTime : '09:30 AM',
+                  decoration: const InputDecoration(labelText: 'Start Time'),
+                  items: _timeOptions.map((time) {
+                    return DropdownMenuItem<String>(
+                      value: time,
+                      child: Text(time),
+                    );
+                  }).toList(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() {
+                        _workStartTime = val;
+                        _updateWorkTimingText();
+                      });
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(width: 16),
+              const Text('to', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(width: 16),
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  value: _timeOptions.contains(_workEndTime) ? _workEndTime : '06:30 PM',
+                  decoration: const InputDecoration(labelText: 'End Time'),
+                  items: _timeOptions.map((time) {
+                    return DropdownMenuItem<String>(
+                      value: time,
+                      child: Text(time),
+                    );
+                  }).toList(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() {
+                        _workEndTime = val;
+                        _updateWorkTimingText();
+                      });
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        ] else ...[
+          TextFormField(
+            controller: _jobTimingsController,
+            decoration: InputDecoration(
+              hintText: 'e.g. 09:30 am - 6:30pm | Monday to Saturday',
+              suffixIcon: _buildFieldCheckmark(_jobTimingsController.text.trim().isNotEmpty),
+            ),
+            onChanged: (_) => setState(() {}),
+          ),
+        ],
+
+        const SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildLabel('Interview Would Be Done Between'),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  if (_selectedInterviewDayRange == 'Custom') {
+                    _selectedInterviewDayRange = 'Monday to Saturday';
+                    _updateInterviewTimingText();
+                  } else {
+                    _selectedInterviewDayRange = 'Custom';
+                  }
+                });
+              },
+              child: Text(
+                _selectedInterviewDayRange == 'Custom' ? 'Use automatic timings' : 'Enter manually',
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primary),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        if (_selectedInterviewDayRange != 'Custom') ...[
+          DropdownButtonFormField<String>(
+            value: _dayRangeOptions.contains(_selectedInterviewDayRange) ? _selectedInterviewDayRange : 'Monday to Saturday',
+            decoration: const InputDecoration(labelText: 'Days'),
+            items: _dayRangeOptions.where((d) => d != 'Custom').map((dayRange) {
+              return DropdownMenuItem<String>(
+                value: dayRange,
+                child: Text(dayRange),
+              );
+            }).toList(),
+            onChanged: (val) {
+              if (val != null) {
+                setState(() {
+                  _selectedInterviewDayRange = val;
+                  _updateInterviewTimingText();
+                });
+              }
+            },
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  value: _timeOptions.contains(_interviewStartTime) ? _interviewStartTime : '11:00 AM',
+                  decoration: const InputDecoration(labelText: 'Start Time'),
+                  items: _timeOptions.map((time) {
+                    return DropdownMenuItem<String>(
+                      value: time,
+                      child: Text(time),
+                    );
+                  }).toList(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() {
+                        _interviewStartTime = val;
+                        _updateInterviewTimingText();
+                      });
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(width: 16),
+              const Text('to', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(width: 16),
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  value: _timeOptions.contains(_interviewEndTime) ? _interviewEndTime : '04:00 PM',
+                  decoration: const InputDecoration(labelText: 'End Time'),
+                  items: _timeOptions.map((time) {
+                    return DropdownMenuItem<String>(
+                      value: time,
+                      child: Text(time),
+                    );
+                  }).toList(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() {
+                        _interviewEndTime = val;
+                        _updateInterviewTimingText();
+                      });
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        ] else ...[
+          TextFormField(
+            controller: _interviewTimingsController,
+            decoration: InputDecoration(
+              hintText: 'e.g. 11:00 am - 4:00pm | Monday to Saturday',
+              suffixIcon: _buildFieldCheckmark(_interviewTimingsController.text.trim().isNotEmpty),
+            ),
+            onChanged: (_) => setState(() {}),
+          ),
+        ],
+
+        const SizedBox(height: 20),
+        _buildLabel('Is there any Incentive?'),
+        const SizedBox(height: 8),
+        _buildYesNoToggle(
+          value: _hasIncentive,
+          onChanged: (val) {
+            setState(() {
+              _hasIncentive = val;
+              if (!val) {
+                _incentiveDetailController.clear();
+              }
+            });
+          },
+        ),
+        if (_hasIncentive) ...[
+          const SizedBox(height: 16),
+          _buildLabel('Incentive Details *'),
+          const SizedBox(height: 8),
+          TextFormField(
+            controller: _incentiveDetailController,
+            decoration: InputDecoration(
+              hintText: 'e.g. Rs. 12000 as Performance Linked Incentive',
+              suffixIcon: _buildFieldCheckmark(_incentiveDetailController.text.trim().isNotEmpty),
+            ),
+            onChanged: (_) => setState(() {}),
+            validator: (value) {
+              if (_hasIncentive && (value == null || value.trim().isEmpty)) {
+                return 'Please enter incentive details';
+              }
+              return null;
+            },
+          ),
+        ],
+        const SizedBox(height: 20),
+        _buildLabel('Company Benefits (optional)'),
         const SizedBox(height: 8),
         TextFormField(
-          controller: _jobTimingsController,
+          controller: _benefitsController,
           decoration: InputDecoration(
-            hintText: 'e.g. 09:30 am - 6:30pm | Monday to Saturday',
-            suffixIcon: _buildFieldCheckmark(_jobTimingsController.text.trim().isNotEmpty),
+            hintText: 'e.g. Health Insurance, Flexible Hours, PF',
+            suffixIcon: _buildFieldCheckmark(_benefitsController.text.trim().isNotEmpty),
           ),
           onChanged: (_) => setState(() {}),
         ),
-
-        const SizedBox(height: 20),
-        _buildLabel('Interview Would Be Done Between'),
+        const SizedBox(height: 10),
+        _buildLabel('Common Benefits (Tap to add)'),
         const SizedBox(height: 8),
-        TextFormField(
-          controller: _interviewTimingsController,
-          decoration: InputDecoration(
-            hintText: 'e.g. 11:00 am - 4:00pm | Monday to Saturday',
-            suffixIcon: _buildFieldCheckmark(_interviewTimingsController.text.trim().isNotEmpty),
-          ),
-          onChanged: (_) => setState(() {}),
-        ),
-
-        const SizedBox(height: 20),
-        _buildLabel('Incentive details'),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: _incentiveDetailController,
-          decoration: InputDecoration(
-            hintText: 'e.g. Rs. 12000 as Performance Linked Incentive',
-            suffixIcon: _buildFieldCheckmark(_incentiveDetailController.text.trim().isNotEmpty),
-          ),
-          onChanged: (_) => setState(() {}),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: _commonBenefits.map((benefit) {
+            final isAdded = _parsedBenefits.contains(benefit);
+            return FilterChip(
+              label: Text(benefit),
+              selected: isAdded,
+              selectedColor: AppColors.primary.withValues(alpha: 0.12),
+              checkmarkColor: AppColors.primary,
+              onSelected: (_) => _toggleBenefit(benefit),
+            );
+          }).toList(),
         ),
 
         const SizedBox(height: 24),
@@ -758,7 +1160,9 @@ class _PostJobScreenState extends State<PostJobScreen> {
 
         _buildLabel('Total Experience of Candidate'),
         const SizedBox(height: 8),
-        Row(
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
           children: [
             _buildCustomChip(
               label: 'Any',
@@ -769,7 +1173,6 @@ class _PostJobScreenState extends State<PostJobScreen> {
                 _selectedExperience = 'fresher';
               }),
             ),
-            const SizedBox(width: 10),
             _buildCustomChip(
               label: 'Freshers Only',
               isSelected: _experiencePreference == 'fresher',
@@ -778,7 +1181,6 @@ class _PostJobScreenState extends State<PostJobScreen> {
                 _selectedExperience = 'fresher';
               }),
             ),
-            const SizedBox(width: 10),
             _buildCustomChip(
               label: 'Experienced Only',
               isSelected: _experiencePreference == 'experienced',
@@ -886,13 +1288,13 @@ class _PostJobScreenState extends State<PostJobScreen> {
         ],
 
         const SizedBox(height: 20),
-        _buildLabel('Detailed Candidate Requirements (optional)'),
+        _buildLabel('Detailed Candidate Requirements (Please write in points) (optional)'),
         const SizedBox(height: 8),
         TextFormField(
           controller: _requirementsController,
           maxLines: 3,
           decoration: const InputDecoration(
-            hintText: 'Specific qualifications, certifications, assets needed...',
+            hintText: 'Please write in points / lines (e.g. \n- 2+ years of experience\n- Strong coding skills\n- Good communication)',
           ),
         ),
 
@@ -998,21 +1400,34 @@ class _PostJobScreenState extends State<PostJobScreen> {
         ),
 
         const SizedBox(height: 20),
-        _buildLabel('Phone Number'),
+        _buildLabel('HR Phone Number (optional)'),
         const SizedBox(height: 8),
         TextFormField(
           controller: _contactPhoneController,
-          enabled: false, // Matches screenshot where it is read-only
-          decoration: const InputDecoration(
-            fillColor: Color(0xFFF1F5F9),
-            filled: true,
+          keyboardType: TextInputType.phone,
+          decoration: InputDecoration(
             hintText: 'HR Phone number',
+            suffixIcon: _buildFieldCheckmark(_contactPhoneController.text.trim().isNotEmpty),
           ),
+          onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 4),
         const Text(
           'Phone number can be changed later',
           style: TextStyle(color: Colors.green, fontSize: 11, fontWeight: FontWeight.w600),
+        ),
+
+        const SizedBox(height: 20),
+        _buildLabel('Job Seeker Contact Preference *'),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: [
+            _buildContactPreferenceChip('Phone Call', 'phone_call', Icons.phone_rounded),
+            _buildContactPreferenceChip('WhatsApp', 'whatsapp', Icons.chat_bubble_rounded),
+            _buildContactPreferenceChip('Email', 'email', Icons.email_rounded),
+          ],
         ),
 
         const SizedBox(height: 20),
@@ -1228,6 +1643,42 @@ class _PostJobScreenState extends State<PostJobScreen> {
     );
   }
 
+  Widget _buildContactPreferenceChip(String label, String value, IconData icon) {
+    final isSelected = _contactPreference == value;
+    return GestureDetector(
+      onTap: () => setState(() => _contactPreference = value),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF0D47A1) : Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF0D47A1) : Colors.grey.shade300,
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 18,
+              color: isSelected ? Colors.white : Colors.grey.shade600,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                color: isSelected ? Colors.white : Colors.grey.shade700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildPostingAsChip(String label, String value) {
     final isSelected = _postingAs == value;
     return GestureDetector(
@@ -1269,7 +1720,14 @@ class _PostJobScreenState extends State<PostJobScreen> {
             if (_currentStep > 0)
               IconButton(
                 icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF0D47A1), size: 24),
-                onPressed: () => setState(() => _currentStep--),
+                onPressed: () {
+                  setState(() => _currentStep--);
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (_scrollController.hasClients) {
+                      _scrollController.jumpTo(0.0);
+                    }
+                  });
+                },
               )
             else
               const SizedBox(width: 48),
@@ -1281,6 +1739,7 @@ class _PostJobScreenState extends State<PostJobScreen> {
                   shape: const CircleBorder(),
                   padding: const EdgeInsets.all(16),
                   backgroundColor: const Color(0xFF0D47A1),
+                  minimumSize: const Size(0, 0),
                 ),
                 child: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 20),
               )
@@ -1341,11 +1800,16 @@ class _PostJobScreenState extends State<PostJobScreen> {
                   setState(() {
                     if (selected) {
                       _roleController.text = role;
-                      if (_titleController.text.trim().isEmpty) {
+                      if (_titleController.text.trim().isEmpty || _titleController.text.trim() == _lastAutoSetRole) {
                         _titleController.text = role;
+                        _lastAutoSetRole = role;
                       }
                     } else {
                       _roleController.clear();
+                      if (_titleController.text.trim() == _lastAutoSetRole) {
+                        _titleController.clear();
+                        _lastAutoSetRole = '';
+                      }
                     }
                   });
                 },
@@ -1359,6 +1823,10 @@ class _PostJobScreenState extends State<PostJobScreen> {
                 setState(() {
                   if (selected) {
                     _roleController.clear();
+                    if (_titleController.text.trim() == _lastAutoSetRole) {
+                      _titleController.clear();
+                      _lastAutoSetRole = '';
+                    }
                   }
                 });
               },
@@ -1620,8 +2088,9 @@ class _PostJobScreenState extends State<PostJobScreen> {
         'contact_phone': _contactPhoneController.text.trim().isEmpty ? null : _contactPhoneController.text.trim(),
         'contact_email': _contactEmailController.text.trim().isEmpty ? null : _contactEmailController.text.trim(),
         'department': _departmentController.text.trim().isEmpty ? null : _departmentController.text.trim(),
-        'role': _roleController.text.trim().isEmpty ? null : _roleController.text.trim(),
+        'role': _roleController.text.trim().isEmpty ? _titleController.text.trim() : _roleController.text.trim(),
         'security_deposit': _securityDeposit,
+        'security_deposit_amount': _securityDeposit ? (_securityDepositAmountController.text.trim().isEmpty ? null : _securityDepositAmountController.text.trim()) : null,
         'interview_timings': _interviewTimingsController.text.trim().isEmpty ? null : _interviewTimingsController.text.trim(),
       };
 
@@ -1682,6 +2151,7 @@ class _PostJobScreenState extends State<PostJobScreen> {
 
   @override
   void dispose() {
+    _benefitsController.dispose();
     _titleController.dispose();
     _descController.dispose();
     _requirementsController.dispose();
@@ -1711,6 +2181,8 @@ class _PostJobScreenState extends State<PostJobScreen> {
     _departmentController.dispose();
     _roleController.dispose();
     _customIndustryController.dispose();
+    _scrollController.dispose();
+    _securityDepositAmountController.dispose();
     super.dispose();
   }
 }

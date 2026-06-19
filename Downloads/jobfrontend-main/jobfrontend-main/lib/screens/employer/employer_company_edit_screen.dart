@@ -208,7 +208,7 @@ class _EmployerCompanyEditScreenState extends State<EmployerCompanyEditScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(18),
                   child: provider != null
-                      ? Image(image: provider, fit: BoxFit.cover)
+                      ? Image(image: provider, fit: BoxFit.contain, width: logoSize, height: logoSize)
                       : Center(
                           child: Icon(
                             Icons.business_rounded,
@@ -459,6 +459,14 @@ class _EmployerCompanyEditScreenState extends State<EmployerCompanyEditScreen> {
           _buildTextArea(
             _bioCtrl,
             'Describe your company culture, mission, and focus...',
+          ),
+
+          const SizedBox(height: 28),
+          _buildSectionHeader('What we do', Icons.work_outline_rounded),
+          const SizedBox(height: 12),
+          _buildTextArea(
+            _whatWeDoCtrl,
+            'Describe your products, services, and daily operations...',
           ),
 
           const SizedBox(height: 28),

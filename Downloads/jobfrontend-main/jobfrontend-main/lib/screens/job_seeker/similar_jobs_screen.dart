@@ -62,8 +62,8 @@ class _SimilarJobsScreenState extends State<SimilarJobsScreen> {
       final intersection = targetWords.intersection(candidateWords).length;
       final union = targetWords.union(candidateWords).length;
       score += (intersection / union) * 30.0;
+      totalWeight += 30.0;
     }
-    totalWeight += 30.0;
 
     // 2. Skills match (Jaccard similarity on skills)
     // Weight: 30
@@ -73,54 +73,63 @@ class _SimilarJobsScreenState extends State<SimilarJobsScreen> {
       final intersection = targetSkills.intersection(candidateSkills).length;
       final union = targetSkills.union(candidateSkills).length;
       score += (intersection / union) * 30.0;
+      totalWeight += 30.0;
     } else if (targetSkills.isEmpty && candidateSkills.isEmpty) {
-      if (target.industryType != null && target.industryType == candidate.industryType) {
+      if (target.industryType != null && target.industryType!.isNotEmpty && target.industryType == candidate.industryType) {
         score += 30.0;
+        totalWeight += 30.0;
       }
     }
-    totalWeight += 30.0;
 
     // 3. Industry Type match
     // Weight: 20
-    if (target.industryType != null && candidate.industryType != null) {
+    if (target.industryType != null && target.industryType!.isNotEmpty &&
+        candidate.industryType != null && candidate.industryType!.isNotEmpty) {
+      totalWeight += 20.0;
       if (target.industryType!.toLowerCase() == candidate.industryType!.toLowerCase()) {
         score += 20.0;
       }
     }
-    totalWeight += 20.0;
 
     // 4. Role Category match
     // Weight: 20
-    if (target.roleCategory != null && candidate.roleCategory != null) {
+    if (target.roleCategory != null && target.roleCategory!.isNotEmpty &&
+        candidate.roleCategory != null && candidate.roleCategory!.isNotEmpty) {
+      totalWeight += 20.0;
       if (target.roleCategory!.toLowerCase() == candidate.roleCategory!.toLowerCase()) {
         score += 20.0;
       }
     }
-    totalWeight += 20.0;
 
     // 5. Functional Area match
     // Weight: 20
-    if (target.functionalArea != null && candidate.functionalArea != null) {
+    if (target.functionalArea != null && target.functionalArea!.isNotEmpty &&
+        candidate.functionalArea != null && candidate.functionalArea!.isNotEmpty) {
+      totalWeight += 20.0;
       if (target.functionalArea!.toLowerCase() == candidate.functionalArea!.toLowerCase()) {
         score += 20.0;
       }
     }
-    totalWeight += 20.0;
 
     // 6. Experience Level match
     // Weight: 10
-    if (target.experienceLevel == candidate.experienceLevel) {
-      score += 10.0;
+    if (target.experienceLevel.isNotEmpty && candidate.experienceLevel.isNotEmpty) {
+      totalWeight += 10.0;
+      if (target.experienceLevel == candidate.experienceLevel) {
+        score += 10.0;
+      }
     }
-    totalWeight += 10.0;
 
     // 7. Job Type match
     // Weight: 10
-    if (target.jobType == candidate.jobType) {
-      score += 10.0;
+    if (target.jobType.isNotEmpty && candidate.jobType.isNotEmpty) {
+      totalWeight += 10.0;
+      if (target.jobType == candidate.jobType) {
+        score += 10.0;
+      }
     }
-    totalWeight += 10.0;
 
+    if (totalWeight == 0.0) return 0.0;
     return (score / totalWeight) * 100.0;
   }
 

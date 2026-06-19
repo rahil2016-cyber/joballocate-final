@@ -2,6 +2,7 @@ class PromoBanner {
   final String id;
   final String title;
   final String? subtitle;
+  final String? belowLine;
   final String? imageUrl;
   final String? backgroundColor;
   final String? textColor;
@@ -15,6 +16,7 @@ class PromoBanner {
     required this.id,
     required this.title,
     this.subtitle,
+    this.belowLine,
     this.imageUrl,
     this.backgroundColor,
     this.textColor,
@@ -32,6 +34,7 @@ class PromoBanner {
       id: json['id']?.toString() ?? '',
       title: json['title']?.toString() ?? '',
       subtitle: json['subtitle']?.toString() ?? content,
+      belowLine: json['below_line']?.toString(),
       imageUrl: json['image_url']?.toString(),
       backgroundColor: json['background_color']?.toString(),
       textColor: json['text_color']?.toString(),
@@ -55,6 +58,7 @@ class PromoBanner {
       'id': id,
       'title': title,
       'subtitle': subtitle,
+      'below_line': belowLine,
       'image_url': imageUrl,
       'background_color': backgroundColor,
       'text_color': textColor,

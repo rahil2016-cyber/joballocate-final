@@ -5,10 +5,12 @@ import '../utils/app_colors.dart';
 
 class BannerCarousel extends StatefulWidget {
   final List<banner_model.PromoBanner> banners;
+  final double horizontalPadding;
 
   const BannerCarousel({
     super.key,
     required this.banners,
+    this.horizontalPadding = 24.0,
   });
 
   @override
@@ -61,9 +63,9 @@ class _BannerCarouselState extends State<BannerCarousel> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: EdgeInsets.symmetric(horizontal: widget.horizontalPadding),
           child: SizedBox(
-            height: 135, // Proportional height to match standard banner aspect ratio
+            height: 165, // Proportional height to match standard banner aspect ratio
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: PageView.builder(
@@ -88,15 +90,17 @@ class _BannerCarouselState extends State<BannerCarousel> {
             ),
           ),
         ),
-        // Only show subtitle below if it is a custom subtitle OR if the banner has no image (text-only fallback)
-        if (hasSubtitle || !currentHasImage) ...[
+        // Only show subtitle/belowLine below if it is present OR if the banner has no image (text-only fallback)
+        if ((currentBanner.belowLine != null && currentBanner.belowLine!.trim().isNotEmpty) || hasSubtitle || !currentHasImage) ...[
           const SizedBox(height: 10),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: EdgeInsets.symmetric(horizontal: widget.horizontalPadding),
             child: Text(
-              hasSubtitle
-                  ? currentBanner.subtitle!
-                  : 'Your success, our mission. Discover exclusive career coaching and placement services.',
+              (currentBanner.belowLine != null && currentBanner.belowLine!.trim().isNotEmpty)
+                  ? currentBanner.belowLine!
+                  : (hasSubtitle
+                      ? currentBanner.subtitle!
+                      : 'Your success, our mission. Discover exclusive career coaching and placement services.'),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: AppColors.textSecondary,

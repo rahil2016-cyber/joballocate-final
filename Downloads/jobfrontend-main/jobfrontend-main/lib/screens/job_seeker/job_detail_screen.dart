@@ -285,32 +285,32 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: Colors.grey.shade200),
                 ),
-                child: Center(
-                  child: _job.companyLogoUrl != null
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: CachedNetworkImage(
-                            imageUrl: _job.companyLogoUrl!,
-                            fit: BoxFit.cover,
-                            width: 64,
-                            height: 64,
-                            errorWidget: (context, url, error) => Center(
-                              child: Text(
-                                _job.companyName.isNotEmpty ? _job.companyName[0].toUpperCase() : 'C',
-                                style: const TextStyle(
-                                  color: AppColors.primary,
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.w800,
-                                ),
+                child: _job.companyLogoUrl != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: CachedNetworkImage(
+                          imageUrl: _job.companyLogoUrl!,
+                          fit: BoxFit.contain,
+                          width: 64,
+                          height: 64,
+                          errorWidget: (context, url, error) => Center(
+                            child: Text(
+                              _job.companyName.isNotEmpty ? _job.companyName[0].toUpperCase() : 'C',
+                              style: const TextStyle(
+                                color: AppColors.primary,
+                                fontSize: 26,
+                                fontWeight: FontWeight.w800,
                               ),
                             ),
                           ),
-                        )
-                      : Text(
+                        ),
+                      )
+                    : Center(
+                        child: Text(
                           _job.companyName.isNotEmpty ? _job.companyName[0].toUpperCase() : 'C',
                           style: const TextStyle(
                             color: AppColors.primary,
@@ -318,7 +318,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                             fontWeight: FontWeight.w800,
                           ),
                         ),
-                ),
+                      ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -329,7 +329,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                       _job.title,
                       style: textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
+                        color: AppColors.primary,
                         fontSize: 18,
                       ),
                     ),
@@ -560,7 +560,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                     Expanded(
                       child: Text(
                         _job.securityDeposit
-                            ? 'Warning: Candidates are asked for a security deposit (e.g. kit/uniform/bike).'
+                            ? 'Warning: Candidates are asked for a security deposit (e.g. kit/uniform/bike).${_job.securityDepositAmount != null && _job.securityDepositAmount!.isNotEmpty ? "\n\nDeposit Details: ${_job.securityDepositAmount}" : ""}'
                             : 'Report job if money is demanded',
                         style: TextStyle(
                           color: _job.securityDeposit ? Colors.amber.shade900 : Colors.red.shade900,
@@ -601,10 +601,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                 ],
               ),
               const SizedBox(height: 12),
-              Text(
-                _job.description,
-                style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary, height: 1.5),
-              ),
+              _buildBulletPoints(_job.description, textTheme),
             ],
           ),
         ),
@@ -760,10 +757,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimary),
             ),
             const SizedBox(height: 6),
-            Text(
-              _job.requirements,
-              style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary, height: 1.5),
-            ),
+            _buildBulletPoints(_job.requirements, textTheme),
           ],
         ],
       ),
@@ -918,52 +912,6 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
               style: const TextStyle(fontSize: 13, color: AppColors.textPrimary, fontWeight: FontWeight.bold),
             ),
           ),
-          if (_job.contactPhone != null && _job.contactPhone!.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Text(
-              _job.contactPreference == 'whatsapp' ? 'WhatsApp Number:' : 'HR Phone Number:',
-              style: const TextStyle(fontSize: 12, color: AppColors.textHint, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 6),
-            InkWell(
-              onTap: _contactHR,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                decoration: BoxDecoration(
-                  color: Colors.indigo.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.indigo.shade200),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      _job.contactPreference == 'whatsapp'
-                          ? Icons.chat_rounded
-                          : Icons.phone_enabled_rounded,
-                      size: 16,
-                      color: Colors.indigo,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      _job.contactPhone!,
-                      style: const TextStyle(fontSize: 13, color: Colors.indigo, fontWeight: FontWeight.bold),
-                    ),
-                    const Spacer(),
-                    Text(
-                      _job.contactPreference == 'whatsapp' ? 'Chat on WhatsApp' : 'Call HR',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: Colors.indigo,
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
           if (_job.contactEmail != null && _job.contactEmail!.isNotEmpty) ...[
             const SizedBox(height: 12),
             const Text(
@@ -1143,16 +1091,6 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
           children: [
             Expanded(
               child: _buildActionTile(
-                icon: Icons.share_rounded,
-                label: 'Share',
-                bgColor: const Color(0xFFDCF8C6),
-                textColor: const Color(0xFF075E54),
-                onTap: _shareJob,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildActionTile(
                 icon: Icons.warning_amber_rounded,
                 label: 'Report',
                 bgColor: const Color(0xFFFFEBEE),
@@ -1162,23 +1100,6 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                     const SnackBar(
                       content: Text('Job reported. Admin will review.'),
                       backgroundColor: AppColors.error,
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildActionTile(
-                icon: Icons.lightbulb_outline_rounded,
-                label: 'Tips',
-                bgColor: const Color(0xFFE8EAF6),
-                textColor: const Color(0xFF283593),
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Tip: Prepare your resume before calling the recruiter.'),
-                      backgroundColor: Colors.indigo,
                     ),
                   );
                 },
@@ -1383,6 +1304,67 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildBulletPoints(String text, TextTheme textTheme) {
+    if (text.trim().isEmpty) return const SizedBox.shrink();
+    
+    final lines = text.split('\n')
+        .map((line) => line.trim())
+        .map((line) {
+          if (line.startsWith('-') || line.startsWith('*') || line.startsWith('•')) {
+            return line.substring(1).trim();
+          }
+          return line;
+        })
+        .where((line) => line.isNotEmpty)
+        .toList();
+        
+    final List<String> bulletItems = [];
+    if (lines.length <= 1) {
+      final sentences = text.split('.')
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .toList();
+      if (sentences.length > 1) {
+        bulletItems.addAll(sentences);
+      } else {
+        bulletItems.addAll(lines);
+      }
+    } else {
+      bulletItems.addAll(lines);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: bulletItems.map((item) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '• ',
+                style: textTheme.bodyMedium?.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  item,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
     );
   }
 }

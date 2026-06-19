@@ -403,7 +403,7 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             SliverAppBar(
-              expandedHeight: 280,
+              expandedHeight: 340,
               pinned: true,
               backgroundColor: AppColors.primary,
               automaticallyImplyLeading: false,
@@ -417,6 +417,7 @@ class _JobSeekerProfileScreenState extends State<JobSeekerProfileScreen> {
                     ),
                   ),
                   child: SafeArea(
+                    bottom: false,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

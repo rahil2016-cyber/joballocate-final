@@ -188,7 +188,9 @@ class EmployerDashboardPageState extends State<EmployerDashboardPage> {
                                             borderRadius: BorderRadius.circular(10),
                                             child: Image.network(
                                               logoUrl,
-                                              fit: BoxFit.cover,
+                                              fit: BoxFit.contain,
+                                              width: 38,
+                                              height: 38,
                                               errorBuilder: (_, __, ___) => const Icon(Icons.business, color: AppColors.primary, size: 20),
                                             ),
                                           ),
@@ -240,7 +242,7 @@ class EmployerDashboardPageState extends State<EmployerDashboardPage> {
 
                         /// BANNERS
                         if (_banners.isNotEmpty) ...[
-                          BannerCarousel(banners: _banners),
+                          BannerCarousel(banners: _banners, horizontalPadding: 0),
                           const SizedBox(height: 20),
                         ],
 

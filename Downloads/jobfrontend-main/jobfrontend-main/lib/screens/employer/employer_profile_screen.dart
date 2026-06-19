@@ -187,13 +187,16 @@ class _EmployerProfileScreenState extends State<EmployerProfileScreen> {
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: const Color(0xFFF1F5F9)),
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(20),
                               child: (logoUrl != null && logoUrl.isNotEmpty)
                                   ? Image.network(
                                       logoUrl,
-                                      fit: BoxFit.cover,
+                                      fit: BoxFit.contain,
+                                      width: 80,
+                                      height: 80,
                                       errorBuilder: (_, __, ___) => Center(
                                         child: Text(
                                           initials.toUpperCase(),

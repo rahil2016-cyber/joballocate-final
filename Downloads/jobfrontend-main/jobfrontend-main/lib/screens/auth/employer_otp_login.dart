@@ -112,9 +112,9 @@ class _EmployerOtpLoginScreenState extends State<EmployerOtpLoginScreen> {
 
               const SizedBox(height: 48),
 
-              // Email Input
+              // Email or Phone Input
               Text(
-                'Business Email',
+                'Email or Phone Number',
                 style: textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
@@ -125,7 +125,7 @@ class _EmployerOtpLoginScreenState extends State<EmployerOtpLoginScreen> {
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 decoration: const InputDecoration(
-                  hintText: 'company@example.com',
+                  hintText: 'Enter email or phone number',
                   prefixIcon: Icon(
                     Icons.alternate_email_rounded,
                     color: AppColors.accent,
@@ -202,11 +202,11 @@ class _EmployerOtpLoginScreenState extends State<EmployerOtpLoginScreen> {
   }
 
   Future<void> _login() async {
-    final email = _emailController.text.trim();
+    final identifier = _emailController.text.trim();
     final password = _passwordController.text;
 
-    if (email.isEmpty) {
-      _showSnackBar('Please enter your email address');
+    if (identifier.isEmpty) {
+      _showSnackBar('Please enter your email or phone number');
       return;
     }
     if (password.isEmpty) {
@@ -218,7 +218,7 @@ class _EmployerOtpLoginScreenState extends State<EmployerOtpLoginScreen> {
 
     try {
       await _apiService.loginWithPassword(
-        identifier: email,
+        identifier: identifier,
         password: password,
         role: 'company',
       );
